@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="La carta de Restaurante Shelloh — desayunos, almuerzos y bebidas. Cocina venezolana urbana, en formato libro interactivo.">
+    <meta name="theme-color" content="#1A1815">
+    <title>Restaurante Shelloh — La carta</title>
+
+    <link rel="icon" type="image/png" href="assets/marca-shelloh.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&display=swap">
+
+    <style>
+        /* ============================================================
+           RESTAURANTE SHELLOH — LA CARTA (libro / flip-book)
+           Tokens de marca
+           ============================================================ */
+        :root {
+            --graphite: #26231F;
+            --graphite-900: #1A1815;
+            --graphite-700: #34302A;
+
+            --cream: #F4EDE1;
+            --cream-2: #EAE0D0;
+            --cream-3: #DFD3BF;
+
+            --terracotta: #B4633C;
+            /* Texto de precio: terracota oscuro para cumplir WCAG AA (≥4,5:1)
+               sobre crema (#F4EDE1 → 5,16:1) y sobre crema-2 (#EAE0D0 → 4,59:1,
+               fondo de la píldora .head-title__tag). El terracotta de marca se
+               reserva para trazos/grandes decorativos. */
+            --price: #9D4C29;
+            --copper: #C97C4C;
+            --mustard: #D9A22B;
+
+            --ink: #211E1A;
+            --muted: #6E675B;
+            --line: rgba(33, 30, 26, .16);
+            --line-dark: rgba(244, 237, 225, .16);
+
+            /* Tipografías */
+            --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+            --font-sans: 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+
+            /* Tamaño de página (lo calcula el JS) */
+            --page-w: 360px;
+
+            /* Utilidades */
+            --ease: cubic-bezier(.33, 1, .68, 1);
+            --shadow-stage: 0 26px 70px -24px rgba(0, 0, 0, .85);
+        }
+
+        /* ============================================================
+           RESET / BASE
+           ============================================================ */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--graphite-900);
+            color: var(--cream);
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        img { display: block; max-width: 100%; }
+        button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+        a { color: inherit; text-decoration: none; }
+
+        :focus-visible {
+            outline: 2px solid var(--mustard);
+            outline-offset: 3px;
+            border-radius: 6px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: .01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .01ms !important;
+            }
+            html { scroll-behavior: auto; }
+        }
+
+        /* ============================================================
+           OVERLAY DE CARGA
+           ============================================================ */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: var(--graphite-900);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            transition: opacity .45s var(--ease);
+        }
+        .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+
+        .loading-overlay::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: .05;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 200px 200px;
+        }
+
+        .loading-mark {
+            width: 74px;
+            height: auto;
+            animation: markPulse 1.8s ease-in-out infinite;
+            position: relative;
+        }
+
+        .loading-text {
+            font-size: .72rem;
+            font-weight: 600;
+            letter-spacing: .24em;
+            text-transform: uppercase;
+            color: rgba(244, 237, 225, .6);
+            position: relative;
+        }
+
+        @keyframes markPulse {
+            0%, 100% { opacity: .45; transform: scale(1); }
+            50% { opacity: .9; transform: scale(1.04); }
+        }
+
+        /* ============================================================
+           ESCENARIO DEL LIBRO
+           ============================================================ */
+        .book-wrapper {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--graphite-900);
+            overflow: hidden;
+        }
+
+        /* Grano de fondo */
+        .book-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: .055;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 210px 210px;
+        }
+
+        /* Arco de marca del escenario (curvas del logo) */
+        .book-wrapper::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: min(150vh, 150vw);
+            height: min(150vh, 150vw);
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(180, 99, 60, .12);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .flip-book {
+            display: none;
+            box-shadow: var(--shadow-stage), 0 0 0 1px rgba(244, 237, 225, .06);
+            will-change: transform;
+        }
+
+        /* ============================================================
+           BASE DE PÁGINA
+           --u = 1 % del ancho de página (se escala con --fit)
+           ============================================================ */
+        .page {
+            --fit: 1;
+            --u: calc(var(--page-w) * var(--fit) / 100);
+            overflow: hidden;
+            font-family: var(--font-sans);
+            color: var(--ink);
+        }
+
+        .page--ink { background-color: var(--cream); }
+
+        /* Grano de papel de las páginas claras: ruido SVG tileable inline,
+           el mismo que ya usan las páginas oscuras — así el libro sigue
+           siendo un archivo único, sin peticiones extra de texturas.
+           (Históricamente aquí iba assets/textura-crema.png, pero en su
+           primera versión era una captura de página completa que, al
+           repetirse en mosaico, dibujaba costuras sobre el papel.) */
+        .page--ink::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 200px 200px;
+            opacity: .1;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .page--dark { background-color: var(--graphite); color: var(--cream); }
+
+        .page--dark::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: .05;
+            pointer-events: none;
+            z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-size: 200px 200px;
+        }
+
+        /* Filo de la hoja */
+        .page::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 4;
+            pointer-events: none;
+            box-shadow: inset 0 0 0 1px rgba(33, 30, 26, .07);
+        }
+        .page--dark::after { box-shadow: inset 0 0 0 1px rgba(244, 237, 225, .09); }
+
+        /* ============================================================
+           CONTENIDO DE PÁGINA
+           ============================================================ */
+        .page-content {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: calc(var(--u) * 5) calc(var(--u) * 6);
+            overflow: hidden;
+            pointer-events: auto;
+        }
+
+        .page-content--center {
+            align-items: center;
+            text-align: center;
+            justify-content: center;
+        }
+
+        /* ---------- Páginas importadas del PDF ---------- */
+        .page--pdf { background: #fff; }
+
+        .page-content--pdf {
+            padding: 0;
+            background: #fff;
+        }
+
+        .page-pdf {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+
+        /* ---------- Cabecera de sección ---------- */
+        .page-head { flex: 0 0 auto; }
+
+        .head-top {
+            display: flex;
+            align-items: center;
+            gap: calc(var(--u) * 1.6);
+            margin-bottom: calc(var(--u) * 1.4);
+        }
+
+        .head-mark {
+            height: calc(var(--u) * 5.2);
+            width: auto;
+            opacity: .9;
+        }
+
+        .head-num {
+            font-size: calc(var(--u) * 2.9);
+            font-weight: 600;
+            letter-spacing: .22em;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .head-title {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: calc(var(--u) * 6.6);
+            line-height: 1.02;
+            letter-spacing: -.015em;
+            color: var(--ink);
+            display: flex;
+            align-items: baseline;
+            gap: calc(var(--u) * 2);
+        }
+
+        .head-title__tag {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: calc(var(--u) * 4.2);
+            line-height: 1;
+            color: var(--price);
+            background: var(--cream-2);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: calc(var(--u) * .7) calc(var(--u) * 2);
+            letter-spacing: 0;
+        }
+
+        .head-rule {
+            height: 1px;
+            background: var(--line);
+            margin-top: calc(var(--u) * 2.2);
+        }
+
+        /* ---------- Categorías ---------- */
+        .block { display: flex; flex-direction: column; }
+
+        .cat {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: calc(var(--u) * 2);
+            /* ≥14 px en móvil (u≈3,51 → 14,7) y tablet (u≈3,45 → 14,5) */
+            font-size: calc(var(--u) * 4.2);
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--ink);
+            padding-bottom: calc(var(--u) * 1.3);
+            border-bottom: 1px solid var(--line);
+            margin-top: calc(var(--u) * 3.6);
+            margin-bottom: calc(var(--u) * 2.2);
+        }
+
+        .cat:first-child { margin-top: 0; }
+
+        /* Los .cat viven dentro de su propio .block, así que :first-child
+           los anula a todos. Este regla devuelve la separación entre bloques
+           de categoría (Proteínas → Platos Shelloh, Refresco → Malta, etc.). */
+        .block + .block > .cat { margin-top: calc(var(--u) * 3.6); }
+
+        .cat__price {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1.16em;
+            letter-spacing: 0;
+            color: var(--price);
+            white-space: nowrap;
+        }
+
+        /* ---------- Listas ---------- */
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: calc(var(--u) * 1.3);
+        }
+
+        .item {
+            display: flex;
+            align-items: baseline;
+            gap: calc(var(--u) * 1.4);
+            /* ≥15 px en móvil (u≈3,5) y ≥14 px en tablet (u≈3,45) */
+            font-size: calc(var(--u) * 4.35);
+            font-weight: 500;
+            line-height: 1.35;
+            color: var(--ink);
+        }
+
+        .item__name { min-width: 0; }
+
+        .item__dots {
+            flex: 1 1 auto;
+            min-width: calc(var(--u) * 3);
+            border-bottom: 1px dotted rgba(33, 30, 26, .38);
+            transform: translateY(-.3em);
+        }
+
+        .item__price {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 1.06em;
+            color: var(--price);
+            white-space: nowrap;
+        }
+
+        .list--split {
+            display: grid;
+            grid-auto-flow: column;
+            grid-template-rows: repeat(11, auto);
+            /* filas abiertas pero contenidas: el interlineado se ajusta para
+               que las 21 filas quepan con --fit = 1 y tipografía ≥15 px */
+            gap: calc(var(--u) * 4.2) calc(var(--u) * 3);
+        }
+        .list--split .item { font-size: calc(var(--u) * 4.3); }
+
+        /* ---------- Rejillas ---------- */
+        .cols {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: calc(var(--u) * 4);
+            align-items: start;
+        }
+
+        .col { display: flex; flex-direction: column; min-width: 0; }
+
+        .cols--media { grid-template-columns: 40fr 44fr; align-items: stretch; }
+
+        .col--media { display: flex; }
+
+        /* ---------- Fotografía ---------- */
+        .photo {
+            width: 100%;
+            object-fit: cover;
+            background: var(--cream-3);
+            border-radius: 2px;
+        }
+
+        .photo--jugos { height: calc(var(--u) * 66); align-self: flex-start; }
+
+        .photo--wide-a { height: calc(var(--u) * 52); }
+        .photo--wide-b { height: calc(var(--u) * 44); }
+
+        /* Foto en arco (cierre): repite la silueta del arco de portada.
+           El <figure> recorta el marco negro que trae el JPEG original
+           (≈1,4 % por borde), que si no se ve como una banda en el arco. */
+        .photo-arch {
+            width: calc(var(--u) * 56);
+            height: calc(var(--u) * 72);
+            align-self: center;
+            overflow: hidden;
+            background: var(--cream-3);
+            border-radius: calc(var(--u) * 28) calc(var(--u) * 28) calc(var(--u) * 4) calc(var(--u) * 4);
+            box-shadow:
+                0 0 0 calc(var(--u) * 1.4) var(--cream),
+                0 0 0 calc(var(--u) * 1.55) rgba(180, 99, 60, .45);
+        }
+
+        .photo-arch__img {
+            display: block;
+            width: calc(var(--u) * 59);
+            height: calc(var(--u) * 76);
+            margin: calc(var(--u) * -2) 0 0 calc(var(--u) * -1.5);
+            object-fit: cover;
+            object-position: center;
+            border-radius: 0;
+        }
+
+        .photo-caption {
+            font-size: calc(var(--u) * 2.7);
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: calc(var(--u) * 1.6);
+        }
+
+        /* ============================================================
+           PORTADA / CONTRAPORTADA
+           ============================================================ */
+        .cover-arch {
+            position: absolute;
+            left: 50%;
+            top: calc(var(--u) * 7);
+            transform: translateX(-50%);
+            width: calc(var(--u) * 62);
+            height: calc(var(--u) * 86);
+            border: 1px solid rgba(180, 99, 60, .55);
+            border-radius: calc(var(--u) * 31) calc(var(--u) * 31) calc(var(--u) * 4) calc(var(--u) * 4);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .cover-arch::after {
+            content: '';
+            position: absolute;
+            inset: calc(var(--u) * 2.4);
+            border: 1px solid rgba(244, 237, 225, .1);
+            border-radius: calc(var(--u) * 29) calc(var(--u) * 29) calc(var(--u) * 3) calc(var(--u) * 3);
+        }
+
+        .cover-inner { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; }
+
+        .cover-logo {
+            width: calc(var(--u) * 46);
+            height: auto;
+            margin-bottom: calc(var(--u) * 5);
+        }
+
+        .cover-title {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: calc(var(--u) * 10);
+            line-height: 1;
+            letter-spacing: -.02em;
+            color: var(--cream);
+        }
+
+        .cover-sub {
+            margin-top: calc(var(--u) * 2.4);
+            font-size: calc(var(--u) * 3.3);
+            font-weight: 600;
+            letter-spacing: .24em;
+            text-transform: uppercase;
+            color: rgba(244, 237, 225, .72);
+        }
+
+        .cover-rule {
+            width: calc(var(--u) * 34);
+            height: 1px;
+            background: var(--line-dark);
+            margin: calc(var(--u) * 4.5) 0;
+        }
+
+        .cover-sections {
+            font-size: calc(var(--u) * 3.2);
+            font-weight: 500;
+            letter-spacing: .1em;
+            color: rgba(244, 237, 225, .62);
+        }
+
+        .cover-foot {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: calc(var(--u) * 6);
+            z-index: 2;
+            font-size: calc(var(--u) * 2.6);
+            font-weight: 500;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: rgba(244, 237, 225, .65);
+        }
+
+        /* ---------- Contraportada ---------- */
+        .back-logo { width: calc(var(--u) * 38); height: auto; }
+
+        .back-name {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: calc(var(--u) * 5.4);
+            line-height: 1.05;
+            margin-top: calc(var(--u) * 3);
+            color: var(--cream);
+        }
+
+        .back-tag {
+            font-size: calc(var(--u) * 2.6);
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: rgba(244, 237, 225, .65);
+            margin-top: calc(var(--u) * 1.6);
+        }
+
+        .pay-card {
+            width: calc(var(--u) * 76);
+            margin-top: calc(var(--u) * 6);
+            padding: calc(var(--u) * 4) calc(var(--u) * 4.5);
+            background: rgba(244, 237, 225, .05);
+            border: 1px solid var(--line-dark);
+            border-radius: calc(var(--u) * 2);
+            text-align: left;
+        }
+
+        .pay-title {
+            font-size: calc(var(--u) * 2.9);
+            font-weight: 700;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: var(--mustard);
+            padding-bottom: calc(var(--u) * 2);
+            border-bottom: 1px solid var(--line-dark);
+        }
+
+        .pay-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: calc(var(--u) * 2);
+            padding: calc(var(--u) * 1.8) 0;
+            border-bottom: 1px solid rgba(244, 237, 225, .08);
+        }
+        .pay-row:last-of-type { border-bottom: none; }
+
+        .pay-label {
+            font-size: calc(var(--u) * 2.7);
+            font-weight: 600;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: rgba(244, 237, 225, .55);
+        }
+
+        .pay-value {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: calc(var(--u) * 3.9);
+            color: var(--cream);
+            white-space: nowrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: calc(var(--u) * 1.6);
+            font-family: var(--font-sans);
+            font-size: calc(var(--u) * 3);
+            font-weight: 600;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            border-radius: 999px;
+            padding: calc(var(--u) * 2.4) calc(var(--u) * 5);
+            min-height: calc(var(--u) * 9);
+            transition: background-color .2s var(--ease), color .2s var(--ease), transform .2s var(--ease);
+        }
+
+        .btn--ghost {
+            margin-top: calc(var(--u) * 3.5);
+            width: 100%;
+            border: 1px solid rgba(201, 124, 76, .7);
+            color: var(--cream);
+            background: rgba(201, 124, 76, .12);
+        }
+        .btn--ghost:hover { background: rgba(201, 124, 76, .24); transform: translateY(-1px); }
+        .btn--ghost.is-copied { background: rgba(217, 162, 43, .22); border-color: var(--mustard); }
+
+        .btn--solid {
+            margin-top: calc(var(--u) * 5);
+            background: var(--cream);
+            color: var(--graphite-900);
+        }
+        .btn--solid:hover { background: var(--cream-2); transform: translateY(-1px); }
+
+        .btn svg { width: calc(var(--u) * 3.4); height: calc(var(--u) * 3.4); stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ============================================================
+           PÁGINA VISUAL
+           ============================================================ */
+        .visual { align-items: center; text-align: center; }
+
+        .visual-phrase {
+            font-family: var(--font-display);
+            font-style: italic;
+            font-weight: 400;
+            font-size: calc(var(--u) * 5.4);
+            line-height: 1.28;
+            color: var(--ink);
+            max-width: calc(var(--u) * 74);
+            margin: calc(var(--u) * 2) auto;
+        }
+
+        .visual-mark {
+            width: calc(var(--u) * 16);
+            height: 1px;
+            background: var(--terracotta);
+            margin: calc(var(--u) * 2.4) auto 0;
+        }
+
+        /* Página visual de cierre (izquierda del último spread) */
+        .visual--close .visual-phrase { max-width: calc(var(--u) * 88); }
+
+        /* ============================================================
+           CONTROLES (fijos)
+           ============================================================ */
+        .sound-btn {
+            position: fixed;
+            top: max(14px, env(safe-area-inset-top));
+            right: 14px;
+            z-index: 120;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(26, 24, 21, .78);
+            border: 1px solid var(--line-dark);
+            color: var(--cream);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: transform .2s var(--ease), background-color .2s var(--ease);
+            touch-action: manipulation;
+        }
+        .sound-btn:hover { transform: scale(1.06); background: rgba(52, 48, 42, .9); }
+        .sound-btn:active { transform: scale(.96); }
+        .sound-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.7; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .sound-btn .icon-off { display: none; }
+        .sound-btn.is-muted .icon-on { display: none; }
+        .sound-btn.is-muted .icon-off { display: block; }
+
+        .page-indicator {
+            position: fixed;
+            top: max(18px, env(safe-area-inset-top));
+            left: 14px;
+            z-index: 120;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 13px;
+            border-radius: 999px;
+            background: rgba(26, 24, 21, .72);
+            border: 1px solid var(--line-dark);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            font-size: .72rem;
+            font-weight: 600;
+            letter-spacing: .14em;
+            color: rgba(244, 237, 225, .78);
+        }
+        .page-indicator .sep { color: rgba(244, 237, 225, .38); }
+
+        .controls {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: max(14px, env(safe-area-inset-bottom));
+            z-index: 120;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            padding: 0 12px;
+            pointer-events: none;
+        }
+        .controls > * { pointer-events: auto; }
+
+        .nav-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(26, 24, 21, .78);
+            border: 1px solid var(--line-dark);
+            color: var(--cream);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: transform .2s var(--ease), background-color .2s var(--ease), opacity .2s var(--ease);
+            touch-action: manipulation;
+        }
+        .nav-btn:hover { transform: scale(1.06); background: rgba(52, 48, 42, .92); }
+        .nav-btn:active { transform: scale(.95); }
+        .nav-btn[disabled] { opacity: .32; cursor: default; transform: none; }
+        .nav-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .nav-btn--prev { justify-self: start; }
+        .nav-btn--next { justify-self: end; }
+
+        .volver-btn {
+            justify-self: center;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 12px 24px;
+            border-radius: 999px;
+            background: var(--cream);
+            color: var(--graphite-900);
+            border: 1px solid rgba(244, 237, 225, .5);
+            font-size: .74rem;
+            font-weight: 700;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            box-shadow: 0 10px 30px -12px rgba(0, 0, 0, .9);
+            transition: transform .2s var(--ease), background-color .2s var(--ease);
+            touch-action: manipulation;
+        }
+        .volver-btn:hover { transform: translateY(-2px); background: #fff; }
+        .volver-btn:active { transform: translateY(0) scale(.98); }
+        .volver-btn svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+        /* ---------- Hint de teclado ---------- */
+        .keyboard-hint {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            padding: 13px 22px;
+            background: rgba(26, 24, 21, .92);
+            border: 1px solid rgba(201, 124, 76, .55);
+            border-radius: 12px;
+            color: var(--cream);
+            font-size: .78rem;
+            letter-spacing: .04em;
+            text-align: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .3s var(--ease);
+        }
+        .keyboard-hint.show { opacity: 1; }
+        .keyboard-hint kbd {
+            display: inline-block;
+            min-width: 24px;
+            padding: 3px 7px;
+            margin: 0 3px;
+            background: rgba(201, 124, 76, .18);
+            border: 1px solid rgba(201, 124, 76, .6);
+            border-radius: 5px;
+            font-family: var(--font-sans);
+            font-size: .74rem;
+            color: var(--cream-3);
+        }
+
+        /* ---------- Toast ---------- */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: calc(max(14px, env(safe-area-inset-bottom)) + 66px);
+            transform: translate(-50%, 14px);
+            z-index: 300;
+            padding: 11px 20px;
+            border-radius: 999px;
+            background: var(--mustard);
+            color: var(--graphite-900);
+            font-size: .74rem;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s var(--ease), transform .25s var(--ease);
+            box-shadow: 0 12px 34px -14px rgba(0, 0, 0, .9);
+        }
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 479px) {
+            .sound-btn, .nav-btn { width: 42px; height: 42px; }
+            .volver-btn { padding: 11px 18px; font-size: .68rem; letter-spacing: .12em; }
+            .page-indicator { font-size: .68rem; padding: 6px 11px; }
+        }
+
+        @media (min-width: 900px) {
+            .sound-btn, .nav-btn { width: 48px; height: 48px; }
+            .volver-btn { padding: 13px 28px; font-size: .76rem; }
+            .page-indicator { font-size: .75rem; }
+        }
+
+        /* ============================================================
+           ACCESIBILIDAD / IMPRESIÓN
+           ============================================================ */
+        .sr-only {
+            position: absolute;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden;
+            clip: rect(0 0 0 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        @media print {
+            .sound-btn, .controls, .page-indicator, .keyboard-hint, .loading-overlay, .toast { display: none !important; }
+            .book-wrapper { position: static; height: auto; overflow: visible; background: #fff; }
+            .flip-book { display: block !important; box-shadow: none; }
+            .page { page-break-after: always; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ===================== CARGA ===================== -->
+    <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+        <img class="loading-mark" src="assets/marca-shelloh.png" alt="">
+        <p class="loading-text">Abriendo la carta…</p>
+    </div>
+
+    <!-- ===================== SONIDO ===================== -->
+    <button type="button" class="sound-btn" id="soundBtn" aria-pressed="false" aria-label="Desactivar el sonido de las hojas" title="Sonido del libro">
+        <svg class="icon-on" viewBox="0 0 24 24" aria-hidden="true">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+        <svg class="icon-off" viewBox="0 0 24 24" aria-hidden="true">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+    </button>
+
+    <!-- ===================== INDICADOR ===================== -->
+    <div class="page-indicator" id="pageIndicator" aria-live="polite" aria-label="Página actual">
+        <span id="pageCurrent">1</span>
+        <span class="sep" aria-hidden="true">/</span>
+        <span id="pageTotal">8</span>
+    </div>
+
+    <!-- ===================== HINT ===================== -->
+    <div class="keyboard-hint" id="keyboardHint" aria-hidden="true">
+        Usa <kbd>&#8592;</kbd> <kbd>&#8594;</kbd> para pasar hoja &middot; <kbd>Esc</kbd> vuelve al inicio
+    </div>
+
+    <!-- ===================== LIBRO ===================== -->
+    <div class="book-wrapper" role="main" aria-label="La carta de Restaurante Shelloh">
+        <div class="flip-book" id="book">
+
+            <!-- ===== PAGINAS ORIGINALES DEL PDF ===== -->
+            <div class="page page--pdf" data-page="portada">
+                <div class="page-content page-content--pdf">
+                    <img class="page-pdf" src="assets/menu-p01.jpg" width="1549" height="2190" alt="Portada con el logotipo de Restaurante Shelloh" decoding="async">
+                </div>
+            </div>
+
+            <div class="page page--pdf" data-page="desayunos">
+                <div class="page-content page-content--pdf">
+                    <img class="page-pdf" src="assets/menu-p02.jpg" width="1549" height="2190" alt="Pagina del menu: desayunos (empanadas, pastelitos, arepas) y bebidas" decoding="async">
+                </div>
+            </div>
+
+            <div class="page page--pdf" data-page="almuerzos">
+                <div class="page-content page-content--pdf">
+                    <img class="page-pdf" src="assets/menu-p03.jpg" width="1549" height="2190" alt="Pagina del menu: almuerzos con proteinas, contornos, platos Shelloh y sopas" decoding="async">
+                </div>
+            </div>
+
+            <div class="page page--pdf" data-page="visual">
+                <div class="page-content page-content--pdf">
+                    <img class="page-pdf" src="assets/menu-p04.jpg" width="1549" height="2190" alt="Pagina divisoria con el logotipo de Restaurante Shelloh" decoding="async">
+                </div>
+            </div>
+
+            <div class="page page--pdf" data-page="contornos">
+                <div class="page-content page-content--pdf">
+                    <img class="page-pdf" src="assets/menu-p05.jpg" width="1549" height="2190" alt="Pagina del menu: desayunos, arepas con precios y lista de contornos" decoding="async">
+                </div>
+            </div>
+
+            <div class="page page--pdf" data-page="cierre">
+                <div class="page-content page-content--pdf">
+                    <img class="page-pdf" src="assets/menu-p06.jpg" width="1549" height="2190" alt="Pagina divisoria Restaurante Shelloh" decoding="async">
+                </div>
+            </div>
+
+            <div class="page page--pdf" data-page="bebidas">
+                <div class="page-content page-content--pdf">
+                    <img class="page-pdf" src="assets/menu-p07.jpg" width="1549" height="2190" alt="Pagina del menu: almuerzos, platos Shelloh, sopas y bebidas" decoding="async">
+                </div>
+            </div>
+
+            <div class="page page--pdf" data-page="contraportada">
+                <div class="page-content page-content--pdf">
+                    <img class="page-pdf" src="assets/menu-p08.jpg" width="1549" height="2190" alt="Pagina final: datos de pago movil y bebidas" decoding="async">
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ===================== CONTROLES ===================== -->
+    <nav class="controls" aria-label="Navegación del libro">
+        <button type="button" class="nav-btn nav-btn--prev" id="prevBtn" aria-label="Página anterior">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+
+        <a class="volver-btn" id="volverBtn" href="index.html" aria-label="Volver al inicio">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Volver al inicio
+        </a>
+
+        <button type="button" class="nav-btn nav-btn--next" id="nextBtn" aria-label="Página siguiente">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+    </nav>
+
+    <!-- ===================== TOAST ===================== -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <!-- ===================== LIBRERÍA ===================== -->
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+
+    <script>
+    (function () {
+        'use strict';
+
+        /* ==========================================================
+           CONFIGURACIÓN DEL LIBRO
+           ========================================================== */
+        var CFG = {
+            RATIO: 1.4142,             // alto / ancho de la página (A4, igual que el PDF)
+            W_FACTOR: 0.90,           // ancho del bloque respecto al viewport
+            H_FACTOR_PORTRAIT: 0.86,  // alto máximo en modo página única
+            H_FACTOR_LANDSCAPE: 0.84, // alto máximo en modo doble página
+            MAX_PAGE_W: 560,          // tope tipográfico en pantallas grandes
+            MIN_PAGE_W: 170,
+            PORTRAIT_BELOW: 700       // < 700px => página individual; >= 700px => doble página
+        };
+
+        var SHOW_COVER = false;       // igual que la referencia probada
+
+        /* ---------- Estado ---------- */
+        var audioCtx = null;
+        var pageFlipInstance = null;
+        var currentPage = 0;
+        var totalPages = 0;
+        var isFlipping = false;
+        var soundEnabled = true;
+        var pageSize = { w: 360, h: 522 };
+        var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        /* Estado de reconstrucción (cambio retrato <-> doble página) */
+        var bookElement = null;      // #book
+        var bookWrapperEl = null;    // .book-wrapper
+        var pageEls = null;          // las 8 páginas, rescatadas antes de destruir
+        var distEl = null;           // .stf__block de la instancia activa
+        var bookUI = null;           // UI de la instancia activa
+        var healFold = function () {}; // se reenlaza a la instancia activa en cada build
+        var isRebuilding = false;    // corta los resize que lleguen durante un rebuild
+        var lastW = 0;               // última anchura procesada por el handler de resize
+        var lastH = 0;               // última altura procesada
+
+        /* Re-medición diferida de geometría (ver scheduleGeometryRefresh) */
+        var geoRefreshDone = true;   // true = no hay refresco pendiente
+        var geoRefreshTimer = null;  // reintento por timer (pliegue / sin rAF)
+        var geoRaf1 = 0;             // primer rAF de la doble espera
+        var geoRaf2 = 0;             // segundo rAF (tras un frame completo)
+        var geoAttempts = 0;         // intentos de refresco del ciclo actual
+        var targetPage = -1;         // página que debe quedar visible tras un rebuild
+        var suppressFlipFx = false;  // silencia sonido/haptic en saltos forzados
+
+        var pageCurrentEl = document.getElementById('pageCurrent');
+        var pageTotalEl = document.getElementById('pageTotal');
+        var keyboardHint = document.getElementById('keyboardHint');
+        var loadingOverlay = document.getElementById('loadingOverlay');
+        var soundBtn = document.getElementById('soundBtn');
+        var prevBtn = document.getElementById('prevBtn');
+        var nextBtn = document.getElementById('nextBtn');
+        var toastEl = document.getElementById('toast');
+
+        /* ==========================================================
+           AUDIO — sonido de volteo sintetizado (WebAudio)
+           ========================================================== */
+        function getAudioContext() {
+            if (!audioCtx) {
+                try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+                catch (e) { return null; }
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        function createPageTurnSound(ctx) {
+            if (!ctx || prefersReducedMotion || !soundEnabled) return null;
+            try {
+                var now = ctx.currentTime;
+
+                /* Capa 1: soplido de papel */
+                var dur = 0.35;
+                var buf = Math.floor(ctx.sampleRate * dur);
+                var data = ctx.createBuffer(1, buf, ctx.sampleRate);
+                var ch = data.getChannelData(0);
+                for (var i = 0; i < buf; i++) {
+                    var t = i / buf;
+                    var envelope = Math.sin(t * Math.PI);
+                    ch[i] = (Math.random() * 2 - 1) * envelope * 0.3;
+                }
+                var src = ctx.createBufferSource();
+                src.buffer = data;
+                var lp = ctx.createBiquadFilter();
+                lp.type = 'lowpass';
+                lp.frequency.value = 2000;
+                lp.frequency.setValueAtTime(2000, now);
+                lp.frequency.linearRampToValueAtTime(800, now + dur);
+                var g1 = ctx.createGain();
+                g1.gain.setValueAtTime(0, now);
+                g1.gain.linearRampToValueAtTime(0.4, now + 0.02);
+                g1.gain.setValueAtTime(0.35, now + 0.08);
+                g1.gain.exponentialRampToValueAtTime(0.001, now + dur);
+                src.connect(lp); lp.connect(g1); g1.connect(ctx.destination);
+                src.start(now); src.stop(now + dur);
+
+                /* Capa 2: crujido */
+                var cDur = 0.2;
+                var cBuf = Math.floor(ctx.sampleRate * cDur);
+                var cData = ctx.createBuffer(1, cBuf, ctx.sampleRate);
+                var cCh = cData.getChannelData(0);
+                for (var j = 0; j < cBuf; j++) {
+                    var ct = j / cBuf;
+                    var cEnv = Math.sin(ct * Math.PI) * (1 - ct * 0.5);
+                    cCh[j] = Math.random() > 0.88
+                        ? (Math.random() * 2 - 1) * 0.6 * cEnv
+                        : (Math.random() * 2 - 1) * 0.03;
+                }
+                var cSrc = ctx.createBufferSource();
+                cSrc.buffer = cData;
+                var cF = ctx.createBiquadFilter();
+                cF.type = 'bandpass'; cF.frequency.value = 4500; cF.Q.value = 0.8;
+                var cG = ctx.createGain();
+                cG.gain.setValueAtTime(0, now + 0.02);
+                cG.gain.linearRampToValueAtTime(0.25, now + 0.04);
+                cG.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                cSrc.connect(cF); cF.connect(cG); cG.connect(ctx.destination);
+                cSrc.start(now + 0.02); cSrc.stop(now + 0.22);
+
+                /* Capa 3: golpe suave al posarse la hoja */
+                var tO = ctx.createOscillator();
+                tO.type = 'sine';
+                tO.frequency.setValueAtTime(120, now + 0.15);
+                tO.frequency.exponentialRampToValueAtTime(40, now + 0.3);
+                var tG = ctx.createGain();
+                tG.gain.setValueAtTime(0, now + 0.15);
+                tG.gain.linearRampToValueAtTime(0.15, now + 0.16);
+                tG.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                tO.connect(tG); tG.connect(ctx.destination);
+                tO.start(now + 0.15); tO.stop(now + 0.3);
+
+                /* Capa 4: aire */
+                var mDur = 0.3;
+                var mBuf = Math.floor(ctx.sampleRate * mDur);
+                var mData = ctx.createBuffer(1, mBuf, ctx.sampleRate);
+                var mCh = mData.getChannelData(0);
+                for (var k = 0; k < mBuf; k++) {
+                    var mt = k / mBuf;
+                    mCh[k] = (Math.random() * 2 - 1) * (Math.sin(mt * Math.PI) * 0.15);
+                }
+                var mSrc = ctx.createBufferSource();
+                mSrc.buffer = mData;
+                var mF = ctx.createBiquadFilter();
+                mF.type = 'bandpass'; mF.frequency.value = 1200; mF.Q.value = 0.5;
+                var mG = ctx.createGain();
+                mG.gain.setValueAtTime(0, now);
+                mG.gain.linearRampToValueAtTime(0.12, now + 0.05);
+                mG.gain.exponentialRampToValueAtTime(0.001, now + mDur);
+                mSrc.connect(mF); mF.connect(mG); mG.connect(ctx.destination);
+                mSrc.start(now); mSrc.stop(now + mDur);
+
+                return src;
+            } catch (e) { return null; }
+        }
+
+        function playPageSound() {
+            if (prefersReducedMotion || !soundEnabled) return;
+            var ctx = getAudioContext();
+            if (ctx) createPageTurnSound(ctx);
+        }
+
+        function triggerHaptic() {
+            if ('vibrate' in navigator && !prefersReducedMotion) {
+                try { navigator.vibrate(15); } catch (e) {}
+            }
+        }
+
+        /* Botón de sonido (visible y accesible) */
+        function syncSoundButton() {
+            soundBtn.classList.toggle('is-muted', !soundEnabled);
+            soundBtn.setAttribute('aria-pressed', soundEnabled ? 'false' : 'true');
+            soundBtn.setAttribute('aria-label', soundEnabled
+                ? 'Desactivar el sonido de las hojas'
+                : 'Activar el sonido de las hojas');
+        }
+        soundBtn.addEventListener('click', function () {
+            soundEnabled = !soundEnabled;
+            syncSoundButton();
+            if (soundEnabled) playPageSound();
+        });
+        syncSoundButton();
+
+        /* ==========================================================
+           CÁLCULO DEL TAMAÑO DE PÁGINA (retrato / doble página)
+           ========================================================== */
+        function computePageSize(vw, vh, portrait) {
+            var w, h;
+            if (portrait) {
+                w = Math.floor(vw * CFG.W_FACTOR);
+                h = Math.floor(w * CFG.RATIO);
+            } else {
+                w = Math.floor((vw * CFG.W_FACTOR) / 2);
+                h = Math.floor(w * CFG.RATIO);
+            }
+
+            var maxH = vh * (portrait ? CFG.H_FACTOR_PORTRAIT : CFG.H_FACTOR_LANDSCAPE);
+            if (h > maxH) {
+                h = Math.floor(maxH);
+                w = Math.floor(h / CFG.RATIO);
+            }
+            if (w > CFG.MAX_PAGE_W) {
+                w = CFG.MAX_PAGE_W;
+                h = Math.floor(w * CFG.RATIO);
+            }
+            if (w < CFG.MIN_PAGE_W) {
+                w = CFG.MIN_PAGE_W;
+                h = Math.floor(w * CFG.RATIO);
+            }
+            return { w: w, h: h };
+        }
+
+        function applyPageSize(size) {
+            pageSize = size;
+            document.documentElement.style.setProperty('--page-w', size.w + 'px');
+        }
+
+        /* ==========================================================
+           AJUSTE DE CONTENIDO (ninguna página desborda nunca)
+           El contenido se mide con el tamaño exacto de la página y,
+           si sobra, se reduce la variable --fit de ESA página.
+           ========================================================== */
+        function measurePage(pageEl) {
+            var content = pageEl.querySelector('.page-content');
+            if (!content) return null;
+            var saved = pageEl.style.cssText;
+            pageEl.style.display = 'block';
+            pageEl.style.width = pageSize.w + 'px';
+            pageEl.style.height = pageSize.h + 'px';
+            var need = content.scrollHeight;
+            var have = content.clientHeight;
+            pageEl.style.cssText = saved;
+            return { need: need, have: have };
+        }
+
+        function fitPages() {
+            var pages = document.querySelectorAll('#book .page');
+            for (var i = 0; i < pages.length; i++) {
+                var pg = pages[i];
+                pg.style.setProperty('--fit', '1');
+                var fit = 1;
+                var guard = 0;
+                var m = measurePage(pg);
+                while (m && m.have > 0 && m.need > m.have + 1 && guard < 8) {
+                    var ratio = m.have / m.need;
+                    if (ratio > 0.999) break;
+                    fit = Math.max(0.5, fit * ratio);
+                    pg.style.setProperty('--fit', fit.toFixed(4));
+                    m = measurePage(pg);
+                    guard++;
+                }
+            }
+        }
+
+        /* ==========================================================
+           CONSTRUCCIÓN / RECONSTRUCCIÓN DEL LIBRO
+           usePortrait no admite cambios tras init: cuando el viewport
+           cruza el umbral, se destruye la instancia y se recrea con la
+           página visible conservada (clamped al rango de páginas).
+           ========================================================== */
+        function desiredPortrait(vw) {
+            return vw < CFG.PORTRAIT_BELOW;
+        }
+
+        /* La librería arranca un bucle rAF en render.start() que destroy()
+           no detiene. Sin neutralizarlo, cada cambio de modo dejaría un
+           bucle huérfano re-pintando páginas que ya están en su sitio
+           (parpadeos / saltos tras el resize). */
+        function killRenderLoop(inst) {
+            try {
+                var render = inst && inst.getRender ? inst.getRender() : null;
+                if (!render || typeof render.render !== 'function') return;
+                var nativeRAF = window.requestAnimationFrame;
+                var armed = true;
+                render.render = function () {
+                    if (!armed) return;
+                    armed = false;
+                    /* render() va seguido, en el mismo tick, del
+                       requestAnimationFrame del propio bucle: se intercepta
+                       esa única llamada, se cancela el frame y se restaura */
+                    window.requestAnimationFrame = function (cb) {
+                        window.requestAnimationFrame = nativeRAF;
+                        var id = nativeRAF.call(window, cb);
+                        window.cancelAnimationFrame(id);
+                        return id;
+                    };
+                };
+            } catch (e) {}
+        }
+
+        function destroyBook() {
+            if (!pageFlipInstance) return;
+
+            /* Rescatar las páginas: destroy() elimina el bloque que las aloja */
+            var pages = bookElement.querySelectorAll('.page');
+            pageEls = [];
+            for (var i = 0; i < pages.length; i++) {
+                if (pages[i].parentNode) pages[i].parentNode.removeChild(pages[i]);
+                pageEls.push(pages[i]);
+            }
+
+            killRenderLoop(pageFlipInstance);
+            try { pageFlipInstance.destroy(); } catch (e) {}
+            pageFlipInstance = null;
+            bookUI = null;
+            distEl = null;
+            healFold = function () {};
+
+            /* destroy() desengancha #book del escenario: se vuelve a colocar */
+            if (bookElement.parentNode !== bookWrapperEl) bookWrapperEl.appendChild(bookElement);
+            for (var j = 0; j < pageEls.length; j++) bookElement.appendChild(pageEls[j]);
+        }
+
+        function buildBook(startIndex) {
+            var vw = window.innerWidth;
+            var vh = window.innerHeight;
+            var isPortrait = desiredPortrait(vw);
+
+            var size = computePageSize(vw, vh, isPortrait);
+            applyPageSize(size);
+
+            bookElement.style.display = 'block';
+
+            pageFlipInstance = new St.PageFlip(bookElement, {
+                width: size.w,
+                height: size.h,
+                size: 'fixed',
+                minWidth: 150,
+                maxWidth: 2400,
+                minHeight: 200,
+                maxHeight: 2000,
+                maxShadowOpacity: 0.3,
+                showCover: SHOW_COVER,
+                mobileScrollSupport: false,
+                clickEventForward: true,
+                useMouseEvents: true,
+                swipeDistance: 30,
+                flippingTime: prefersReducedMotion ? 150 : 500,
+                drawShadow: true,
+                autoSize: false,
+                startPage: startIndex || 0,
+                startZIndex: 0,
+                usePortrait: isPortrait,
+                disableClipboardEvents: false
+            });
+
+            pageFlipInstance.loadFromHTML(pageEls);
+
+            fitPages();
+
+            /* Swipe más tolerante (acepta gestos lentos sin "pegarse") */
+            bookUI = pageFlipInstance.getUI();
+            if (bookUI && typeof bookUI.swipeTimeout === 'number') bookUI.swipeTimeout = 600;
+            window.__bookApp = pageFlipInstance;
+
+            /* ── Evita que la hoja quede trabada en user_fold ───────── */
+            var flipCtrl = pageFlipInstance.getFlipController();
+            healFold = function () {
+                try {
+                    if (flipCtrl.getState() === 'user_fold' && !flipCtrl.getCalculation()) {
+                        flipCtrl.reset();
+                        flipCtrl.setState('read');
+                    }
+                } catch (e) {}
+            };
+            var origFold = flipCtrl.fold.bind(flipCtrl);
+            flipCtrl.fold = function (p) { origFold(p); healFold(); };
+            var origUserStop = pageFlipInstance.userStop.bind(pageFlipInstance);
+            pageFlipInstance.userStop = function (p, f) { origUserStop(p, f); healFold(); };
+
+            distEl = bookElement.querySelector('.stf__block');
+            pageFlipInstance.on('flip', onPageFlip);
+
+            /* El corriente se recalcula: en doble página es la página
+               izquierda del pliego visible */
+            currentPage = pageFlipInstance.getCurrentPageIndex() || 0;
+            pageCurrentEl.textContent = currentPage + 1;
+            updateNavState();
+        }
+
+        function onPageFlip(e) {
+            currentPage = e.data;
+            pageCurrentEl.textContent = currentPage + 1;
+            updateNavState();
+
+            if (suppressFlipFx) return;
+            if (isFlipping) return;
+            isFlipping = true;
+            playPageSound();
+            triggerHaptic();
+            setTimeout(function () { isFlipping = false; }, 800);
+        }
+
+        /* ==========================================================
+           RE-MEDICIÓN DIFERIDA DE GEOMETRÍA
+           Chrome sólo aplica los cambios de estilo/layout durante el
+           siguiente frame de render: dentro del mismo task (y hasta que
+           se pinta un frame) getComputedStyle()/getBoundingClientRect()/
+           offsetWidth devuelven el estado ANTERIOR — leer NO fuerza el
+           recálculo. Como la librería mide .stf__block.offsetWidth para
+           calcular su rect (left/orientación), una llamada síncrona a
+           update() tras mutar min-width o los ajustes de página calcula
+           el rect con la geometría vieja y nada vuelve a medir después:
+           el libro queda cortado/descentrado en los cambios de modo, o
+           con el residual de -10.5 px en los resize del mismo modo.
+           Se re-agenda la medida tras un frame completo y se comprueba
+           que el bloque ya mida cols × ancho de página antes de dar el
+           refresco por bueno (si no, se reintenta).
+           ========================================================== */
+        function scheduleGeometryRefresh() {
+            geoRefreshDone = false;
+            geoAttempts = 0;
+            clearTimeout(geoRefreshTimer);
+            if (geoRaf1) cancelAnimationFrame(geoRaf1);
+            if (geoRaf2) cancelAnimationFrame(geoRaf2);
+            /* Doble rAF: el primer callback corre antes del style/layout
+               de ese frame; el segundo, ya con el layout nuevo aplicado */
+            geoRaf1 = requestAnimationFrame(function () {
+                geoRaf2 = requestAnimationFrame(geoRefreshRun);
+            });
+            /* Fallback por timer si no hay rAF (pestaña en segundo plano) */
+            geoRefreshTimer = setTimeout(geoRefreshRun, 200);
+        }
+
+        function geoRefreshRun() {
+            if (geoRefreshDone || !pageFlipInstance) return;
+            if (isRebuilding) {
+                clearTimeout(geoRefreshTimer);
+                geoRefreshTimer = setTimeout(geoRefreshRun, 60);
+                return;
+            }
+            geoAttempts++;
+
+            var inst = pageFlipInstance;
+            /* El bloque debe medir cols × ancho de página: si no coincide,
+               el layout aún no se ha aplicado y se reintenta */
+            var settled = true;
+            try {
+                var st = inst.getSettings();
+                var want = (st.usePortrait ? 1 : 2) * st.width;
+                var got = distEl ? distEl.offsetWidth : want;
+                settled = Math.abs(got - want) <= 1;
+            } catch (e) { settled = true; }
+
+            /* Si hay un pliegue en curso, update() lo interrumpiría */
+            var busy = inst.getState() !== 'read';
+            if ((busy || !settled) && geoAttempts < 15) {
+                clearTimeout(geoRefreshTimer);
+                geoRefreshTimer = setTimeout(geoRefreshRun, 60);
+                return;
+            }
+
+            geoRefreshDone = true;
+            suppressFlipFx = true;
+            try {
+                inst.update();   // rect nuevo + redibuja el pliego visible
+                /* Conserva la página visible tras un cambio de modo */
+                if (targetPage >= 0) {
+                    if (inst.getCurrentPageIndex() !== targetPage) {
+                        inst.turnToPage(targetPage);
+                    }
+                    targetPage = -1;
+                }
+            } catch (e) {
+            } finally {
+                suppressFlipFx = false;
+            }
+        }
+
+        function rebuildBook() {
+            if (isRebuilding || !pageFlipInstance) return;
+            isRebuilding = true;
+            try {
+                var keep = pageFlipInstance.getCurrentPageIndex() || 0;
+                destroyBook();
+                var idx = Math.max(0, Math.min(totalPages - 1, keep));
+                targetPage = idx;
+                buildBook(idx);
+            } finally {
+                isRebuilding = false;
+            }
+            /* La librería midió en el mismo task, con el layout viejo:
+               se vuelve a medir tras el siguiente frame */
+            scheduleGeometryRefresh();
+        }
+
+        /* ==========================================================
+           VIEWPORT — tamaño y modo en cada resize
+           ========================================================== */
+        function applyViewport() {
+            if (isRebuilding || !pageFlipInstance) return;
+
+            var nvw = window.innerWidth;
+            var nvh = window.innerHeight;
+
+            /* El modo (retrato / doble) se decide en CADA resize:
+               < PORTRAIT_BELOW => página única, >= PORTRAIT_BELOW => doble */
+            var wantPortrait = desiredPortrait(nvw);
+            var curPortrait = !!pageFlipInstance.getSettings().usePortrait;
+            if (wantPortrait !== curPortrait) {
+                lastW = nvw;
+                lastH = nvh;
+                rebuildBook();
+                return;
+            }
+
+            /* No recalcular por la barra de direcciones del móvil */
+            if (Math.abs(nvw - lastW) < 2 && Math.abs(nvh - lastH) < 150) return;
+            lastW = nvw;
+            lastH = nvh;
+
+            var nSize = computePageSize(nvw, nvh, wantPortrait);
+            applyPageSize(nSize);
+
+            var settings = pageFlipInstance.getSettings();
+            settings.width = nSize.w;
+            settings.height = nSize.h;
+            var cols = wantPortrait ? 1 : 2;
+            bookElement.style.minWidth = (nSize.w * cols) + 'px';
+            bookElement.style.minHeight = nSize.h + 'px';
+            /* update() síncrono: mide con el layout actual (aún el viejo,
+               coherente con lo pintado). La medida definitiva, con el
+               layout ya aplicado, la hace el refresco tras el frame */
+            pageFlipInstance.update();
+            scheduleGeometryRefresh();
+
+            fitPages();
+        }
+
+        /* ==========================================================
+           INICIO DEL LIBRO
+           ========================================================== */
+        function initBook() {
+            bookElement = document.getElementById('book');
+            bookWrapperEl = bookElement.parentNode;
+            pageEls = Array.prototype.slice.call(bookElement.querySelectorAll('.page'));
+            totalPages = pageEls.length;
+            pageTotalEl.textContent = totalPages;
+
+            lastW = window.innerWidth;
+            lastH = window.innerHeight;
+
+            buildBook(0);
+            /* Medida de seguridad: re-comprobar la geometría tras el
+               primer frame (si la lectura inicial resultó ser vieja) */
+            scheduleGeometryRefresh();
+
+            /* ── Tocar / clic en la página pasa la hoja ────────────── */
+            var tapStart = { x: 0, y: 0, t: 0 };
+
+            function isInteractive(el) {
+                return !!(el && el.closest && el.closest('a, button'));
+            }
+
+            function tapFlip(clientX, clientY, target) {
+                if (!pageFlipInstance || !distEl) return;
+                if (pageFlipInstance.isUserTouch) return;
+                healFold();
+                if (pageFlipInstance.getState() !== 'read') return;
+                if (isInteractive(target)) return;
+                if (Math.abs(clientX - tapStart.x) > 12 || Math.abs(clientY - tapStart.y) > 12) return;
+                if (Date.now() - tapStart.t > 600) return;
+                var r = distEl.getBoundingClientRect();
+                if (clientX - r.left < r.width / 2) {
+                    pageFlipInstance.flipPrev();
+                } else {
+                    pageFlipInstance.flipNext();
+                }
+            }
+
+            bookElement.addEventListener('touchstart', function (e) {
+                /* Nuestro código gestiona toque + swipe: se anula touchPoint
+                   para que la librería no dispare su pliegue a los 600ms */
+                if (bookUI) bookUI.touchPoint = null;
+                if (e.touches.length === 1) {
+                    tapStart.x = e.touches[0].clientX;
+                    tapStart.y = e.touches[0].clientY;
+                    tapStart.t = Date.now();
+                }
+            }, { passive: true });
+
+            bookElement.addEventListener('touchend', function (e) {
+                if (e.changedTouches.length !== 1) return;
+                var t = e.changedTouches[0];
+                var dx = t.clientX - tapStart.x;
+                var dy = t.clientY - tapStart.y;
+                if (isInteractive(e.target)) return;
+
+                if (Math.abs(dx) <= 12 && Math.abs(dy) <= 12) {
+                    tapFlip(t.clientX, t.clientY, e.target);
+                    return;
+                }
+
+                /* Swipe que la librería pudo ignorar: se completa solo si
+                   ésta no llegó a girar la hoja */
+                if (Math.abs(dx) > 30 && Math.abs(dy) < Math.abs(dx) * 2) {
+                    var goNext = dx < 0;
+                    var startIdx = pageFlipInstance.getCurrentPageIndex();
+                    var tries = 0;
+                    var checkSwipe = function () {
+                        if (!pageFlipInstance) return;
+                        healFold();
+                        if (pageFlipInstance.getState() !== 'read') {
+                            if (++tries < 20) setTimeout(checkSwipe, 80);
+                            return;
+                        }
+                        if (pageFlipInstance.getCurrentPageIndex() !== startIdx) return;
+                        if (goNext) pageFlipInstance.flipNext(); else pageFlipInstance.flipPrev();
+                    };
+                    setTimeout(checkSwipe, 40);
+                }
+            }, { passive: true });
+
+            bookElement.addEventListener('click', function (e) {
+                tapStart.x = e.clientX;
+                tapStart.y = e.clientY;
+                tapStart.t = Date.now();
+                tapFlip(e.clientX, e.clientY, e.target);
+            });
+
+            /* ── Resize: tamaño y, si hace falta, modo (con debounce) ─ */
+            var resizeTimer = null;
+            window.addEventListener('resize', function () {
+                if (isRebuilding) return;
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(applyViewport, 250);
+            });
+
+            /* Sin pestaña visible no hay rAF: al volver, re-medir */
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden && pageFlipInstance) scheduleGeometryRefresh();
+            });
+
+            /* ── Tipografías y fotos: re-medir cuando todo esté listo ─ */
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(function () { fitPages(); }).catch(function () {});
+            }
+            setTimeout(fitPages, 900);
+            setTimeout(fitPages, 2000);
+
+            /* ── Overlay de carga: no se retira hasta tener las 8 páginas ── */
+            var pageImgs = [].slice.call(document.querySelectorAll('.page-pdf'));
+            var imgsReady = Promise.all(pageImgs.map(function (im) {
+                if (im.complete && im.naturalWidth) return Promise.resolve();
+                return new Promise(function (res) {
+                    im.addEventListener('load', res, { once: true });
+                    im.addEventListener('error', res, { once: true });
+                });
+            }));
+            Promise.race([
+                imgsReady,
+                new Promise(function (res) { setTimeout(res, 6000); })
+            ]).then(function () {
+                fitPages();
+                setTimeout(function () {
+                    loadingOverlay.classList.add('hidden');
+                    setTimeout(function () {
+                        loadingOverlay.style.display = 'none';
+                        loadingOverlay.setAttribute('aria-hidden', 'true');
+                    }, 500);
+                }, 150);
+            });
+
+            if (!('ontouchstart' in window) && !prefersReducedMotion) {
+                setTimeout(function () {
+                    keyboardHint.classList.add('show');
+                    setTimeout(function () { keyboardHint.classList.remove('show'); }, 4000);
+                }, 1400);
+            }
+        }
+
+        /* ==========================================================
+           NAVEGACIÓN (botones + teclado)
+           ========================================================== */
+        function updateNavState() {
+            if (!pageFlipInstance) return;
+            var settings = pageFlipInstance.getSettings();
+            var single = settings.usePortrait || !pageFlipInstance.getSpread;
+            try {
+                prevBtn.disabled = currentPage <= 0;
+                nextBtn.disabled = currentPage >= totalPages - 1;
+            } catch (e) {}
+            if (single) return;
+        }
+
+        prevBtn.addEventListener('click', function () {
+            if (pageFlipInstance) pageFlipInstance.flipPrev();
+        });
+        nextBtn.addEventListener('click', function () {
+            if (pageFlipInstance) pageFlipInstance.flipNext();
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (!pageFlipInstance) return;
+            if (e.metaKey || e.ctrlKey || e.altKey) return;
+            switch (e.key) {
+                case 'ArrowRight':
+                    e.preventDefault();
+                    pageFlipInstance.flipNext();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    pageFlipInstance.flipPrev();
+                    break;
+                case 'Escape':
+                    e.preventDefault();
+                    window.location.href = 'index.html';
+                    break;
+            }
+        });
+
+        /* Háptica al deslizar */
+        var docTouchX = 0;
+        document.addEventListener('touchstart', function (e) {
+            if (e.touches[0]) docTouchX = e.touches[0].clientX;
+        }, { passive: true });
+        document.addEventListener('touchend', function (e) {
+            if (e.changedTouches[0] && Math.abs(e.changedTouches[0].clientX - docTouchX) > 50) triggerHaptic();
+        }, { passive: true });
+
+        /* ==========================================================
+           TOAST
+           ========================================================== */
+        var toastTimer = null;
+        function showToast(msg) {
+            if (!toastEl) return;
+            toastEl.textContent = msg;
+            toastEl.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2200);
+        }
+
+        /* ==========================================================
+           PAGO MÓVIL — copiar datos (adaptado de la referencia)
+           ========================================================== */
+        var copyBtn = document.getElementById('btnCopy');
+        var copyLabel = document.getElementById('btnCopyLabel');
+        var PAY_TEXT = 'Pago Móvil — Restaurante Shelloh\nBanco: 0102\nCédula: V-17723490\nTeléfono: 0416-2839-062';
+
+        function copyDone() {
+            copyBtn.classList.add('is-copied');
+            copyLabel.textContent = 'Datos copiados';
+            showToast('Datos copiados');
+            setTimeout(function () {
+                copyBtn.classList.remove('is-copied');
+                copyLabel.textContent = 'Copiar datos';
+            }, 2200);
+        }
+
+        if (copyBtn) {
+            copyBtn.addEventListener('click', function () {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(PAY_TEXT).then(copyDone).catch(function () { legacyCopy(); });
+                } else {
+                    legacyCopy();
+                }
+            });
+        }
+
+        function legacyCopy() {
+            var ta = document.createElement('textarea');
+            ta.value = PAY_TEXT;
+            ta.setAttribute('readonly', '');
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); copyDone(); }
+            catch (e) { showToast('No se pudo copiar'); }
+            document.body.removeChild(ta);
+        }
+
+        /* ==========================================================
+           ARRANQUE / bfcache / red de seguridad
+           ========================================================== */
+        window.addEventListener('pageshow', function (e) {
+            if (e.persisted) {
+                loadingOverlay.style.display = 'none';
+                loadingOverlay.setAttribute('aria-hidden', 'true');
+            }
+        });
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () { setTimeout(initBook, 100); });
+        } else {
+            setTimeout(initBook, 100);
+        }
+
+        /* Si la librería externa no llega, el overlay no debe colgar la página */
+        setTimeout(function () {
+            if (!pageFlipInstance) {
+                loadingOverlay.classList.add('hidden');
+                setTimeout(function () { loadingOverlay.style.display = 'none'; }, 500);
+            }
+        }, 5000);
+    })();
+    </script>
+</body>
+</html>

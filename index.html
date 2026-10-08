@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Restaurante Shelloh — cocina venezolana urbana. Arepas, empanadas, almuerzos, sopas y jugos naturales.">
+    <meta name="theme-color" content="#26231F">
+    <title>Restaurante Shelloh — Cocina venezolana urbana</title>
+
+    <link rel="icon" type="image/png" href="assets/marca-shelloh.png">
+    <link rel="preload" as="image" href="assets/foto-arepa-empanada.jpg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==========================================================
+           RESTAURANTE SHELLOH — landing autocontenida (CSS + JS inline)
+           ========================================================== */
+        :root {
+            /* --- Tokens de diseño (nombres exactos) --- */
+            --graphite:#26231F; --graphite-900:#1A1815; --graphite-700:#34302A;
+            --cream:#F4EDE1; --cream-2:#EAE0D0; --cream-3:#DFD3BF;
+            --terracotta:#B4633C; --copper:#C97C4C; --mustard:#D9A22B;
+            --ink:#211E1A; --muted:#665F53; --line:rgba(33,30,26,.16); --line-dark:rgba(244,237,225,.16);
+
+            /* --- Tipografías --- */
+            --font-display:'Fraunces', Georgia, 'Times New Roman', serif;
+            --font-ui:'Archivo', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+
+            /* --- Utilidades de color --- */
+            --cream-rgb:244,237,225;
+
+            /* --- Radios y arcos --- */
+            --radius-sm:6px; --radius:10px; --radius-lg:14px;
+            --arch:48% 48% 14px 14px / 38% 38% 14px 14px;
+
+            /* --- Sombras cálidas (tono terracota/carbón) --- */
+            --shadow-soft:0 16px 36px -20px rgba(180,99,60,.5), 0 6px 16px -10px rgba(26,24,21,.32);
+            --shadow-card:0 30px 60px -34px rgba(26,24,21,.8);
+            --shadow-header:0 14px 30px -20px rgba(26,24,21,.9);
+
+            /* --- Medidas --- */
+            --max:1200px; --pad:20px; --header-h:72px;
+            --ease:cubic-bezier(.22,.61,.36,1);
+
+            /* --- Grano SVG (feTurbulence) para el hero --- */
+            --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23grain)'/%3E%3C/svg%3E");
+        }
+
+        /* --- Reset --- */
+        *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+        html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; text-size-adjust:100%; scrollbar-gutter:stable; }
+        body {
+            font-family:var(--font-ui);
+            font-weight:400;
+            line-height:1.6;
+            color:var(--ink);
+            background:var(--cream);
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            overflow-x:hidden;
+        }
+        body.nav-open { overflow:hidden; }
+        img { display:block; max-width:100%; height:auto; }
+        a { color:inherit; text-decoration:none; }
+        button { font:inherit; color:inherit; background:none; border:0; cursor:pointer; }
+        ul { list-style:none; }
+        svg { display:block; }
+
+        :focus-visible { outline:3px solid var(--terracotta); outline-offset:3px; border-radius:4px; }
+        section[id] { scroll-margin-top:calc(var(--header-h) + 10px); }
+
+        .visually-hidden {
+            position:absolute !important; width:1px; height:1px;
+            padding:0; margin:-1px; overflow:hidden;
+            clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; border:0;
+        }
+
+        .wrap { width:100%; max-width:var(--max); margin:0 auto; padding:0 var(--pad); }
+        .section { position:relative; padding:clamp(56px,8vw,104px) 0; }
+
+        /* --- Skip link --- */
+        .skip-link {
+            position:fixed; top:-220px; left:16px; z-index:3000;
+            padding:14px 22px; background:var(--mustard); color:var(--graphite-900);
+            font-weight:700; font-size:.85rem; letter-spacing:.12em; text-transform:uppercase;
+            border-radius:0 0 var(--radius) var(--radius);
+            transition:top .2s var(--ease);
+        }
+        .skip-link:focus { top:0; outline:3px solid var(--graphite-900); outline-offset:2px; }
+
+        /* ==========================================================
+           HEADER
+           ========================================================== */
+        .site-header {
+            position:sticky; top:0; z-index:1200;
+            background:var(--graphite);
+            border-bottom:1px solid var(--line-dark);
+            transition:box-shadow .3s var(--ease);
+        }
+        .site-header.is-scrolled { box-shadow:var(--shadow-header); }
+
+        .header-inner {
+            position:relative;
+            display:flex; align-items:center; justify-content:space-between; gap:16px;
+            max-width:var(--max); margin:0 auto; padding:0 var(--pad);
+            min-height:var(--header-h);
+        }
+
+        .brand { display:flex; align-items:center; gap:11px; padding:6px 2px; }
+        .brand__mark { width:auto; height:40px; }
+        .brand__text { display:flex; flex-direction:column; line-height:1.05; }
+        .brand__name {
+            font-family:var(--font-display); font-weight:700;
+            font-size:1.3rem; color:var(--cream);
+        }
+        .brand__kicker {
+            font-size:.55rem; font-weight:600; letter-spacing:.32em;
+            text-transform:uppercase; color:var(--copper);
+        }
+
+        .site-nav { display:none; }
+        .site-nav__list { display:flex; align-items:center; gap:2px; }
+        .site-nav__link {
+            position:relative; display:block; padding:10px 13px;
+            font-size:.78rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+            color:rgba(var(--cream-rgb),.9);
+            transition:color .25s var(--ease);
+        }
+        .site-nav__link::after {
+            content:""; position:absolute; left:13px; right:13px; bottom:6px; height:1px;
+            background:var(--mustard); transform:scaleX(0); transform-origin:left;
+            transition:transform .3s var(--ease);
+        }
+        .site-nav__link:hover { color:var(--mustard); }
+        .site-nav__link:hover::after, .site-nav__link:focus-visible::after { transform:scaleX(1); }
+
+        .nav-toggle {
+            display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+            gap:5px; width:46px; height:46px;
+            border:1px solid var(--line-dark); border-radius:var(--radius-sm);
+        }
+        .nav-toggle__bar {
+            display:block; width:20px; height:2px; background:var(--cream);
+            transition:transform .3s var(--ease), opacity .2s var(--ease);
+        }
+        .nav-toggle[aria-expanded="true"] .nav-toggle__bar:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+        .nav-toggle[aria-expanded="true"] .nav-toggle__bar:nth-child(2) { opacity:0; }
+        .nav-toggle[aria-expanded="true"] .nav-toggle__bar:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+        .mobile-nav {
+            display:none; position:absolute; top:100%; left:0; right:0;
+            background:var(--graphite-900);
+            border-bottom:1px solid var(--line-dark);
+            box-shadow:0 30px 50px -30px rgba(26,24,21,.95);
+            padding:6px var(--pad) 22px;
+        }
+        .mobile-nav.is-open { display:block; }
+        .mobile-nav__link {
+            display:block; padding:16px 2px;
+            font-size:.9rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+            color:var(--cream); border-bottom:1px solid var(--line-dark);
+            transition:color .2s var(--ease), padding-left .2s var(--ease);
+        }
+        .mobile-nav__link:hover { color:var(--mustard); padding-left:8px; }
+
+        @media (min-width:900px) {
+            :root { --header-h:76px; }
+            .site-nav { display:block; }
+            .nav-toggle, .mobile-nav { display:none !important; }
+            .brand__mark { height:44px; }
+            .brand__name { font-size:1.42rem; }
+        }
+
+        /* ==========================================================
+           BOTONES
+           ========================================================== */
+        .btn {
+            display:inline-flex; align-items:center; justify-content:center; gap:10px;
+            min-height:50px; padding:15px 30px;
+            font-size:.8rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+            border-radius:8px; text-align:center;
+            transition:background-color .3s var(--ease), color .3s var(--ease),
+                       border-color .3s var(--ease), transform .3s var(--ease);
+        }
+        .btn--primary { background:var(--mustard); color:var(--graphite-900); }
+        .btn--primary:hover { background:var(--cream); transform:translateY(-2px); }
+        .btn--ghost { border:1px solid rgba(var(--cream-rgb),.45); color:var(--cream); }
+        .btn--ghost:hover { background:rgba(var(--cream-rgb),.1); border-color:var(--cream); transform:translateY(-2px); }
+        .btn--dark { background:var(--graphite); color:var(--cream); }
+        .btn--dark:hover { background:var(--graphite-700); transform:translateY(-2px); }
+
+        /* ==========================================================
+           HERO (#inicio)
+           ========================================================== */
+        .hero {
+            position:relative; isolation:isolate; overflow:hidden;
+            background:var(--graphite); color:var(--cream);
+            padding:clamp(48px,7vw,96px) 0 clamp(56px,8vw,104px);
+        }
+        /* Grano sutil (SVG feTurbulence) */
+        .hero::before {
+            content:""; position:absolute; inset:0; z-index:0;
+            background-image:var(--grain);
+            background-size:300px 300px;
+            opacity:.06; pointer-events:none;
+        }
+        /* Calidez difusa detrás del contenido */
+        .hero::after {
+            content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+            background:radial-gradient(760px 420px at 12% 0%, rgba(201,124,76,.2), transparent 62%),
+                       radial-gradient(680px 520px at 92% 100%, rgba(180,99,60,.16), transparent 65%);
+        }
+
+        .hero-arc {
+            position:absolute; z-index:0; pointer-events:none;
+            top:-9%; right:-7%;
+            width:min(60vw,620px); height:auto;
+            stroke:var(--terracotta); stroke-width:1; fill:none;
+            opacity:.55;
+        }
+
+        .hero__inner {
+            position:relative; z-index:1;
+            display:grid; grid-template-columns:1fr; gap:clamp(36px,5vw,64px);
+            align-items:center;
+        }
+        @media (min-width:900px) {
+            .hero__inner { grid-template-columns:1.05fr .95fr; }
+        }
+
+        .hero__kicker {
+            display:flex; align-items:center; gap:14px;
+            font-size:clamp(.63rem,1.6vw,.73rem); font-weight:600;
+            letter-spacing:.3em; text-transform:uppercase; color:var(--mustard);
+            /* 360/390: reparte el kicker en dos líneas equilibradas para que
+               "URBANA" no quede huérfana en la segunda. */
+            text-wrap:balance;
+        }
+        .hero__kicker::before {
+            content:""; flex:0 0 auto; width:clamp(28px,5vw,48px); height:1px;
+            background:var(--terracotta);
+        }
+        .hero__kicker-text { text-wrap:balance; }
+
+        .hero__title {
+            font-family:var(--font-display); font-weight:700;
+            font-size:clamp(2.35rem,7vw,4.15rem); line-height:1.03;
+            letter-spacing:-.015em; color:var(--cream);
+            margin:20px 0 20px;
+        }
+        .hero__title em { font-style:italic; color:var(--copper); }
+
+        .hero__lead {
+            max-width:56ch;
+            font-size:clamp(1rem,1.5vw,1.13rem); line-height:1.65;
+            color:rgba(var(--cream-rgb),.84);
+        }
+
+        .hero__actions { display:flex; flex-wrap:wrap; gap:14px; margin-top:30px; }
+
+        .hero__chips {
+            display:flex; flex-wrap:wrap; gap:10px;
+            margin-top:34px; padding-top:26px;
+            border-top:1px solid var(--line-dark);
+        }
+        .chip {
+            display:inline-flex; align-items:center; gap:7px;
+            padding:8px 14px; border:1px solid var(--line-dark); border-radius:8px;
+            font-size:.66rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+            color:rgba(var(--cream-rgb),.9);
+        }
+        .chip::before {
+            content:""; width:5px; height:5px; border-radius:50%;
+            background:var(--terracotta);
+        }
+        .chip b { font-weight:700; color:var(--mustard); }
+
+        /* Foto en arco + marco fino desplazado */
+        .hero__media { position:relative; padding:0 4px 4px 0; }
+        .hero__media::before {
+            content:""; position:absolute; z-index:0;
+            top:-14px; left:-14px; right:16px; bottom:16px;
+            border:1px solid var(--terracotta); border-radius:var(--arch);
+            opacity:.75; pointer-events:none;
+        }
+        .hero__photo {
+            position:relative; z-index:1; overflow:hidden;
+            aspect-ratio:949 / 572;
+            border-radius:var(--arch);
+            box-shadow:var(--shadow-card);
+            background:var(--graphite-900);
+        }
+        .hero__photo img {
+            width:100%; height:100%; object-fit:cover;
+            filter:saturate(1.06) contrast(1.02);
+            transition:transform .7s var(--ease), filter .7s var(--ease);
+        }
+        @media (hover:hover) {
+            .hero__media:hover .hero__photo img { transform:scale(1.03); filter:saturate(1) contrast(1); }
+        }
+
+        /* ==========================================================
+           MARQUESINA
+           ========================================================== */
+        .marquee {
+            position:relative; overflow:hidden;
+            background:var(--graphite-900);
+            border-top:1px solid var(--line-dark);
+            border-bottom:1px solid var(--line-dark);
+            padding:16px 0;
+        }
+        .marquee__track {
+            display:flex; width:max-content;
+            animation:marquee-scroll 46s linear infinite;
+        }
+        .marquee:hover .marquee__track,
+        .marquee.is-paused .marquee__track { animation-play-state:paused; }
+        .marquee__group {
+            display:flex; align-items:center; gap:26px; padding-right:26px;
+            font-size:.8rem; font-weight:600; letter-spacing:.3em; text-transform:uppercase;
+            color:var(--cream); white-space:nowrap;
+        }
+        .marquee__sep { color:var(--mustard); font-size:1.05rem; letter-spacing:0; }
+        @keyframes marquee-scroll { from { transform:translate3d(0,0,0); } to { transform:translate3d(-50%,0,0); } }
+
+        html.reduced-motion .marquee__track { animation:none !important; width:100%; justify-content:center; }
+        html.reduced-motion .marquee__group + .marquee__group { display:none; }
+        html.reduced-motion .marquee__group { padding-right:0; }
+
+        /* ==========================================================
+           CABECERAS DE SECCIÓN
+           ========================================================== */
+        .eyebrow {
+            display:flex; align-items:center; gap:14px;
+            font-size:.7rem; font-weight:600; letter-spacing:.3em; text-transform:uppercase;
+            color:var(--muted);
+        }
+        .eyebrow::before {
+            content:""; flex:0 0 auto; width:44px; height:1px; background:var(--terracotta);
+        }
+        .eyebrow--dark { color:var(--mustard); }
+        .eyebrow--dark::before { background:var(--mustard); }
+
+        .section-title {
+            font-family:var(--font-display); font-weight:600;
+            font-size:clamp(1.9rem,4.4vw,3rem); line-height:1.06; letter-spacing:-.01em;
+            color:var(--ink); max-width:24ch;
+            margin:18px 0 16px;
+        }
+        .section-title--dark { color:var(--cream); }
+        .section-lead { max-width:62ch; font-size:1.02rem; color:var(--muted); }
+        .section-lead--dark { color:rgba(var(--cream-rgb),.8); }
+
+        /* ==========================================================
+           01 — LA CARTA (#carta)
+           ========================================================== */
+        #carta { background:var(--cream); }
+
+        .rows { margin-top:clamp(34px,5vw,58px); border-top:1px solid var(--line); }
+        .row {
+            display:grid; grid-template-columns:1fr; gap:6px;
+            padding:clamp(22px,3vw,34px) clamp(4px,1.5vw,16px);
+            border-bottom:1px solid var(--line);
+            transition:background-color .3s var(--ease);
+        }
+        .row:hover { background:var(--cream-2); }
+        .row__num {
+            font-family:var(--font-display); font-weight:600;
+            font-size:clamp(1.9rem,3.6vw,2.5rem); line-height:1;
+            color:var(--muted); font-variant-numeric:tabular-nums;
+            transition:color .3s var(--ease);
+        }
+        .row:hover .row__num { color:var(--terracotta); }
+        .row__body { display:block; }
+        .row__title {
+            display:block;
+            font-family:var(--font-display); font-weight:700;
+            font-size:clamp(1.4rem,3vw,2rem); line-height:1.1; color:var(--ink);
+        }
+        .row__desc { display:block; margin-top:7px; font-size:.96rem; color:var(--muted); max-width:52ch; }
+        .row__meta { display:flex; align-items:center; gap:14px; margin-top:14px; }
+        .badge {
+            display:inline-block; padding:8px 13px;
+            background:var(--graphite); color:var(--mustard);
+            font-size:.65rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+            border-radius:var(--radius-sm); white-space:nowrap;
+        }
+        .row__arrow {
+            width:34px; height:34px; flex:0 0 auto;
+            display:grid; place-items:center;
+            color:var(--terracotta);
+            transition:transform .3s var(--ease);
+        }
+        .row__arrow svg { width:20px; height:20px; stroke:currentColor; stroke-width:1.75; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+        .row:hover .row__arrow { transform:translateX(6px); }
+
+        @media (min-width:720px) {
+            .row {
+                grid-template-columns:76px 1fr auto;
+                gap:0 26px; align-items:center;
+            }
+            .row__meta { margin-top:0; justify-content:flex-end; gap:18px; }
+        }
+
+        /* ==========================================================
+           02 — DESTACADOS (#destacados)
+           ========================================================== */
+        #destacados { background:var(--graphite); color:var(--cream); }
+
+        .cards {
+            display:grid; grid-template-columns:1fr;
+            gap:clamp(18px,2.6vw,26px);
+            margin-top:clamp(34px,5vw,56px);
+        }
+        @media (min-width:640px) { .cards { grid-template-columns:repeat(2,1fr); } }
+        @media (min-width:1040px) { .cards { grid-template-columns:repeat(4,1fr); } }
+
+        .card {
+            display:flex; flex-direction:column;
+            background:var(--graphite-700);
+            border:1px solid var(--line-dark);
+            border-radius:var(--radius-lg);
+            overflow:hidden;
+            transition:transform .35s var(--ease), border-color .35s var(--ease), box-shadow .35s var(--ease);
+        }
+        .card:hover, .card:focus-visible {
+            transform:translateY(-5px);
+            border-color:rgba(217,162,43,.55);
+            box-shadow:var(--shadow-card);
+        }
+        .card__media {
+            display:block; aspect-ratio:1 / 1; overflow:hidden;
+            background:var(--graphite-900);
+        }
+        .card__media img {
+            width:100%; height:100%; object-fit:cover; object-position:center;
+            filter:saturate(1.14) contrast(1.02);
+            transition:filter .55s var(--ease), transform .65s var(--ease);
+        }
+        /* foto-plato-oscuro.jpg es vertical (421×942): el encuadre cuadrado se
+           centra sobre la empanada para que la tabla y el borde inferior entren. */
+        .card__media img.card__img--empanadas { object-position:center 56%; }
+        .card:hover .card__media img { filter:saturate(1) contrast(1); transform:scale(1.045); }
+        .card__body {
+            display:flex; flex-direction:column; gap:7px;
+            flex:1; padding:18px 18px 22px;
+        }
+        .card__title {
+            font-family:var(--font-display); font-weight:600;
+            font-size:1.24rem; line-height:1.2; color:var(--cream);
+        }
+        /* Dato de la casa (no es precio): comparte el mismo slot visual que
+           .card__price para que las cuatro tarjetas queden equilibradas. */
+        .card__price, .card__stat {
+            font-family:var(--font-display); font-weight:700;
+            font-size:1.42rem; line-height:1; color:var(--mustard);
+        }
+        .card__note {
+            margin-top:auto; padding-top:6px;
+            font-size:.9rem; line-height:1.5; color:rgba(var(--cream-rgb),.76);
+        }
+
+        /* ==========================================================
+           03 — GALERÍA (#galeria)
+           Móvil: masonry a 2 columnas (cada foto conserva su
+           proporción natural vía --ar). Desktop: rejilla editorial de
+           6 columnas con pieza grande + franjas + columnas altas.
+           ========================================================== */
+        #galeria { background:var(--cream); }
+
+        /* --- Carrusel de la galería: foto grande a la vista + peek --- */
+        .gal-carousel {
+            position:relative;
+            margin-top:clamp(34px,5vw,56px);
+        }
+        .gal-track {
+            display:flex;
+            gap:clamp(10px,1.6vw,16px);
+            overflow-x:auto;
+            scroll-snap-type:x mandatory;
+            padding-inline:6%;
+            scrollbar-width:none;
+            -ms-overflow-style:none;
+            border-radius:var(--radius);
+            outline-offset:5px;
+        }
+        .gal-track::-webkit-scrollbar { display:none; }
+        @media (prefers-reduced-motion:no-preference) {
+            .gal-track { scroll-behavior:smooth; }
+        }
+        .gal__item {
+            flex:0 0 88%;
+            margin:0;
+            min-width:0;
+            scroll-snap-align:center;
+        }
+        .gal__link { display:block; position:relative; border-radius:var(--radius); }
+        .gal__frame {
+            position:relative; display:block; width:100%;
+            height:clamp(230px,44vw,460px);
+            overflow:hidden; border-radius:var(--radius);
+            background:var(--cream-2);
+            box-shadow:var(--shadow-soft);
+        }
+        .gal__frame img {
+            width:100%; height:100%; object-fit:cover; object-position:var(--pos,center);
+            filter:saturate(1.06) contrast(1.02);
+            transition:transform .6s var(--ease), filter .6s var(--ease);
+        }
+        /* Velo inferior sutil bajo el icono de zoom */
+        .gal__frame::after {
+            content:""; position:absolute; inset:0; pointer-events:none;
+            background:linear-gradient(to top, rgba(26,24,21,.5), rgba(26,24,21,0) 58%);
+            opacity:0; transition:opacity .4s var(--ease);
+        }
+        .gal__zoom {
+            position:absolute; right:12px; bottom:12px; z-index:1;
+            display:grid; place-items:center; width:38px; height:38px;
+            border:1px solid rgba(var(--cream-rgb),.4); border-radius:50%;
+            background:rgba(38,35,31,.72); color:var(--cream);
+            backdrop-filter:blur(6px);
+            opacity:0; transform:translateY(8px) scale(.92);
+            transition:opacity .35s var(--ease), transform .35s var(--ease);
+        }
+        .gal__zoom svg {
+            width:17px; height:17px;
+            stroke:currentColor; stroke-width:1.75; fill:none;
+            stroke-linecap:round; stroke-linejoin:round;
+        }
+        @media (hover:hover) and (pointer:fine) {
+            .gal__link:hover .gal__frame::after,
+            .gal__link:focus-visible .gal__frame::after { opacity:1; }
+            .gal__link:hover .gal__zoom,
+            .gal__link:focus-visible .gal__zoom { opacity:1; transform:none; }
+            .gal__link:hover .gal__frame img { transform:scale(1.05); filter:saturate(1) contrast(1); }
+        }
+
+        @media (min-width:860px) {
+            .gal-track {
+                padding-inline:7%;
+                gap:clamp(12px,1.4vw,18px);
+            }
+            .gal__item { flex:0 0 86%; }
+        }
+
+        /* Flechas del carrusel */
+        .gal-btn {
+            position:absolute;
+            top:clamp(115px,22vw,230px);
+            transform:translateY(-50%);
+            z-index:2;
+            display:grid; place-items:center;
+            width:44px; height:44px;
+            border-radius:50%;
+            background:rgba(38,35,31,.82);
+            border:1px solid rgba(244,237,225,.35);
+            color:var(--cream);
+            cursor:pointer;
+            backdrop-filter:blur(6px);
+            -webkit-backdrop-filter:blur(6px);
+            transition:background .3s var(--ease), border-color .3s var(--ease), opacity .3s var(--ease);
+        }
+        .gal-btn:hover { background:var(--graphite-700, #34302A); border-color:var(--mustard); }
+        .gal-btn:disabled { opacity:.32; cursor:default; border-color:rgba(244,237,225,.22); }
+        .gal-btn svg {
+            width:18px; height:18px;
+            stroke:currentColor; stroke-width:2; fill:none;
+            stroke-linecap:round; stroke-linejoin:round;
+        }
+        .gal-btn--prev { left:clamp(6px,1.4vw,18px); }
+        .gal-btn--next { right:clamp(6px,1.4vw,18px); }
+        @media (max-width:599px) {
+            .gal-btn { width:38px; height:38px; }
+            .gal-btn svg { width:16px; height:16px; }
+        }
+
+        /* Puntos indicadores */
+        .gal-dots {
+            display:flex; justify-content:center; align-items:center;
+            gap:9px;
+            margin-top:clamp(14px,2vw,20px);
+        }
+        .gal-dot {
+            width:8px; height:8px;
+            padding:0;
+            border:0; border-radius:50%;
+            background:rgba(38,35,31,.28);
+            cursor:pointer;
+            transition:background .25s var(--ease), transform .25s var(--ease);
+        }
+        .gal-dot:hover { background:rgba(38,35,31,.5); }
+        .gal-dot[aria-current="true"] { background:var(--terracotta); transform:scale(1.35); }
+        .gal-dot:focus-visible,
+        .gal-btn:focus-visible,
+        .gal-track:focus-visible { outline:2px solid var(--ink); outline-offset:3px; }
+
+        /* --- Lightbox de la galería (JS propio, sin dependencias) --- */
+        .lightbox {
+            position:fixed; inset:0; z-index:2000;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            padding:clamp(64px,9vh,96px) clamp(10px,3vw,40px) clamp(18px,4vh,40px);
+            background:rgba(26,24,21,.95);
+            backdrop-filter:blur(8px);
+            opacity:0; transition:opacity .3s var(--ease);
+            pointer-events:none;
+        }
+        .lightbox[hidden] { display:none; }
+        .lightbox.is-open { opacity:1; pointer-events:auto; }
+        html.lightbox-open { overflow:hidden; }
+
+        .lightbox__figure {
+            display:flex; flex-direction:column; align-items:center; gap:14px;
+            max-width:min(1080px,100%); margin:0;
+        }
+        .lightbox__img {
+            display:block; max-width:100%; max-height:min(72vh,860px);
+            width:auto; height:auto; object-fit:contain;
+            border-radius:var(--radius-lg);
+            background:var(--graphite-900);
+            box-shadow:0 44px 90px -40px rgba(0,0,0,.95);
+        }
+        .lightbox__meta {
+            display:flex; align-items:baseline; justify-content:center;
+            flex-wrap:wrap; gap:8px 16px;
+        }
+        .lightbox__caption {
+            font-family:var(--font-display); font-weight:600;
+            font-size:clamp(.98rem,2vw,1.15rem); color:var(--cream); text-align:center;
+        }
+        .lightbox__counter {
+            font-size:.68rem; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
+            color:var(--mustard); font-variant-numeric:tabular-nums;
+        }
+        .lightbox__btn {
+            position:absolute; z-index:2;
+            display:grid; place-items:center; width:46px; height:46px;
+            border:1px solid var(--line-dark); border-radius:50%;
+            background:rgba(38,35,31,.82); color:var(--cream);
+            transition:background-color .25s var(--ease), border-color .25s var(--ease);
+        }
+        .lightbox__btn:hover { background:var(--graphite-700); border-color:var(--mustard); }
+        .lightbox__btn svg {
+            width:20px; height:20px;
+            stroke:currentColor; stroke-width:1.75; fill:none;
+            stroke-linecap:round; stroke-linejoin:round;
+        }
+        .lightbox__close { top:clamp(12px,2vh,20px); right:clamp(12px,2vw,24px); }
+        .lightbox__prev { left:clamp(8px,2vw,22px); top:50%; transform:translateY(-50%); }
+        .lightbox__next { right:clamp(8px,2vw,22px); top:50%; transform:translateY(-50%); }
+        @media (max-width:599px) {
+            .lightbox__btn { width:40px; height:40px; }
+            .lightbox__btn svg { width:17px; height:17px; }
+            .lightbox__prev { left:6px; }
+            .lightbox__next { right:6px; }
+        }
+
+        /* ==========================================================
+           MANIFIESTO
+           ========================================================== */
+        .manifiesto {
+            position:relative; overflow:hidden; text-align:center;
+            background:var(--terracotta); color:var(--cream);
+            padding:clamp(56px,8vw,96px) var(--pad);
+        }
+        .manifiesto::before {
+            content:""; position:absolute; inset:0; pointer-events:none;
+            background-image:var(--grain); background-size:300px 300px;
+            opacity:.07;
+        }
+        .manifiesto__arc {
+            position:absolute; left:50%; bottom:-46%;
+            width:min(120vw,880px); height:auto;
+            transform:translateX(-50%);
+            stroke:rgba(244,237,225,.35); stroke-width:1; fill:none;
+            pointer-events:none;
+        }
+        .quote {
+            position:relative; z-index:1;
+            max-width:920px; margin:0 auto;
+        }
+        .quote__text {
+            font-family:var(--font-display); font-style:italic; font-weight:500;
+            font-size:clamp(1.5rem,3.6vw,2.4rem); line-height:1.34;
+            color:var(--cream);
+            /* Líneas equilibradas: evita comas huérfanas al final de línea
+               y la última palabra sola (fallback pretty → balance). */
+            text-wrap:pretty;
+            text-wrap:balance;
+        }
+
+        /* ==========================================================
+           04 — CÓMO LLEGAR (#ubicacion)
+           ========================================================== */
+        #ubicacion { background:var(--graphite); color:var(--cream); }
+
+        .loc-address {
+            display:flex; align-items:flex-start; gap:10px;
+            max-width:46ch;
+        }
+        .loc-address__icon { flex:0 0 auto; width:19px; height:19px; margin-top:3px; color:var(--mustard); }
+        .loc-address__icon svg {
+            width:100%; height:100%;
+            stroke:currentColor; stroke-width:1.6; fill:none;
+            stroke-linecap:round; stroke-linejoin:round;
+        }
+
+        .loc-grid {
+            display:grid; grid-template-columns:1fr;
+            gap:clamp(20px,3vw,34px);
+            margin-top:clamp(30px,4.4vw,50px);
+            align-items:stretch;
+        }
+        @media (min-width:900px) { .loc-grid { grid-template-columns:1.35fr .65fr; } }
+
+        .loc-map {
+            position:relative; overflow:hidden;
+            border:1px solid var(--line-dark); border-radius:var(--radius-lg);
+            background:var(--cream-2);
+            box-shadow:var(--shadow-card);
+        }
+        .loc-map iframe {
+            display:block; width:100%; border:0;
+            aspect-ratio:4/3; min-height:270px;
+            color-scheme:light;
+        }
+        @media (min-width:900px) { .loc-map iframe { aspect-ratio:16/10; min-height:360px; } }
+
+        .loc-actions {
+            display:flex; flex-direction:column; justify-content:center; gap:14px;
+        }
+        .loc-actions .btn { width:100%; }
+
+        /* ==========================================================
+           PAGO MÓVIL (#pago)
+           ========================================================== */
+        #pago { background:var(--cream); isolation:isolate; overflow:hidden; }
+        /* La textura PNG tiene bordes negros: se amplía la caja y se recorta
+           para que esos bordes queden fuera de la sección. */
+        #pago::before {
+            content:""; position:absolute; inset:-140px; z-index:-1; pointer-events:none;
+            background:url("assets/textura-crema.png") center / cover no-repeat;
+            opacity:.2;
+        }
+
+        .pay-grid {
+            display:grid; grid-template-columns:1fr; gap:clamp(20px,3vw,30px);
+            margin-top:clamp(34px,5vw,52px);
+            align-items:start;
+        }
+        @media (min-width:900px) { .pay-grid { grid-template-columns:1.05fr .95fr; } }
+
+        .panel {
+            background:var(--cream-2);
+            border:1px solid var(--line);
+            border-radius:var(--radius-lg);
+            padding:clamp(24px,3.5vw,38px);
+            box-shadow:var(--shadow-soft);
+        }
+        .panel__title {
+            font-family:var(--font-display); font-weight:700;
+            font-size:clamp(1.55rem,3vw,2rem); line-height:1.1; color:var(--ink);
+            margin-bottom:6px;
+        }
+        .panel__lead { font-size:.94rem; color:var(--muted); margin-bottom:20px; }
+
+        .pay-rows { border-top:1px solid var(--line); margin-bottom:24px; }
+        .pay-row {
+            display:flex; align-items:baseline; justify-content:space-between; gap:18px;
+            padding:15px 2px; border-bottom:1px solid var(--line);
+        }
+        .pay-row dt {
+            font-size:.68rem; font-weight:600; letter-spacing:.2em; text-transform:uppercase;
+            color:var(--muted);
+        }
+        .pay-row dd {
+            font-family:var(--font-display); font-weight:700;
+            font-size:clamp(1.05rem,2.4vw,1.3rem); color:var(--ink);
+            text-align:right;
+        }
+
+        .panel .btn { width:100%; }
+        .btn--copied { background:var(--graphite-700); }
+
+        /* Tarjeta de contacto (oscura) */
+        .panel--contact {
+            background:var(--graphite); border-color:rgba(var(--cream-rgb),.14);
+            color:var(--cream);
+        }
+        .panel--contact .panel__title { color:var(--cream); }
+        .contact-tel {
+            display:flex; flex-direction:column; gap:4px;
+            margin:16px 0 26px; padding:16px 18px;
+            border:1px dashed rgba(217,162,43,.5); border-radius:var(--radius);
+            transition:background-color .3s var(--ease), border-color .3s var(--ease);
+        }
+        .contact-tel:hover { background:rgba(var(--cream-rgb),.06); border-color:var(--mustard); }
+        .contact-tel__label {
+            font-size:.65rem; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
+            color:rgba(var(--cream-rgb),.75);
+        }
+        .contact-tel__number {
+            font-family:var(--font-display); font-weight:700;
+            font-size:clamp(1.4rem,3.4vw,1.9rem); line-height:1.1; color:var(--mustard);
+        }
+
+        /* ==========================================================
+           REDES (#redes) — Instagram
+           ========================================================== */
+        .redes {
+            background:var(--graphite);
+            border-top:1px solid var(--line-dark);
+            padding:clamp(40px,5.5vw,64px) 0;
+        }
+        .redes__inner { display:flex; justify-content:center; }
+        .redes__link {
+            display:flex; align-items:center; gap:clamp(14px,2vw,20px);
+            width:100%; max-width:560px;
+            padding:clamp(18px,2.4vw,24px) clamp(18px,3vw,28px);
+            border:1px solid var(--line-dark); border-radius:var(--radius-lg);
+            background:linear-gradient(120deg, rgba(244,237,225,.05), rgba(244,237,225,.02));
+            transition:border-color .3s var(--ease), transform .3s var(--ease);
+        }
+        .redes__link:hover { border-color:rgba(217,162,43,.6); transform:translateY(-3px); }
+        .redes__icon {
+            display:grid; place-items:center; flex:0 0 auto;
+            width:52px; height:52px; border-radius:50%;
+            border:1px solid rgba(217,162,43,.5); color:var(--mustard);
+        }
+        .redes__icon svg {
+            width:24px; height:24px;
+            stroke:currentColor; stroke-width:1.6; fill:none;
+            stroke-linecap:round; stroke-linejoin:round;
+        }
+        .redes__body { display:flex; flex-direction:column; gap:2px; min-width:0; }
+        .redes__kicker {
+            font-size:.62rem; font-weight:600; letter-spacing:.3em;
+            text-transform:uppercase; color:rgba(var(--cream-rgb),.66);
+        }
+        .redes__title {
+            font-family:var(--font-display); font-weight:600;
+            font-size:clamp(1.12rem,2.4vw,1.4rem); line-height:1.2; color:var(--cream);
+        }
+        .redes__handle { font-size:.9rem; font-weight:600; letter-spacing:.08em; color:var(--mustard); }
+        .redes__arrow {
+            margin-left:auto; flex:0 0 auto;
+            color:rgba(var(--cream-rgb),.7);
+            transition:transform .3s var(--ease), color .3s var(--ease);
+        }
+        .redes__arrow svg {
+            width:20px; height:20px;
+            stroke:currentColor; stroke-width:1.6; fill:none;
+            stroke-linecap:round; stroke-linejoin:round;
+        }
+        .redes__link:hover .redes__arrow { transform:translateX(5px); color:var(--mustard); }
+
+        /* ==========================================================
+           FOOTER
+           ========================================================== */
+        .site-footer {
+            background:var(--graphite-900); color:var(--cream);
+            border-top:1px solid var(--line-dark);
+            padding:clamp(44px,6vw,68px) 0 34px;
+            text-align:center;
+        }
+        .footer__logo { width:auto; height:74px; margin:0 auto 18px; }
+        .footer__name {
+            font-family:var(--font-display); font-weight:700;
+            font-size:1.5rem; color:var(--cream);
+        }
+        .footer__tag {
+            margin-top:6px;
+            font-size:.68rem; font-weight:600; letter-spacing:.26em; text-transform:uppercase;
+            color:rgba(var(--cream-rgb),.78);
+        }
+        .footer__line {
+            width:min(180px,60%); height:1px;
+            background:rgba(var(--cream-rgb),.3);
+            margin:26px auto;
+        }
+        .footer__links {
+            display:flex; flex-wrap:wrap; align-items:center; justify-content:center;
+            gap:12px 22px;
+        }
+        .footer__link {
+            font-size:.78rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase;
+            color:rgba(var(--cream-rgb),.9);
+            padding:6px 2px;
+            transition:color .25s var(--ease);
+        }
+        .footer__link:hover { color:var(--mustard); }
+        .footer__dot { color:var(--terracotta); }
+        .footer__note {
+            margin-top:26px;
+            font-size:.74rem; letter-spacing:.14em; text-transform:uppercase;
+            color:rgba(var(--cream-rgb),.6);
+        }
+
+        /* ==========================================================
+           TOAST
+           ========================================================== */
+        /* El toast es un aviso, no un elemento clicable: pointer-events:none
+           en todos los estados para nunca bloquear el CTA que tenga debajo.
+           z-index:900 — por debajo de la cabecera (z:1200) y de su panel de
+           navegación móvil, para que el menú abierto quede SIEMPRE encima del
+           toast; y por encima del contenido normal (z:0/1), que sigue viéndolo. */
+        .toast {
+            position:fixed; left:50%; bottom:24px; z-index:900;
+            display:flex; align-items:center; gap:10px;
+            max-width:calc(100vw - 32px); padding:14px 22px;
+            background:var(--cream); color:var(--ink);
+            border-left:4px solid var(--mustard);
+            border-radius:var(--radius);
+            box-shadow:0 24px 50px -22px rgba(26,24,21,.7);
+            font-size:.92rem; font-weight:600;
+            opacity:0; pointer-events:none;
+            transform:translateX(-50%) translateY(130%);
+            transition:transform .4s var(--ease), opacity .4s var(--ease);
+        }
+        .toast.is-visible { opacity:1; transform:translateX(-50%) translateY(0); }
+        .toast__icon { width:19px; height:19px; flex:0 0 auto; color:var(--terracotta); }
+        .toast__icon svg { width:100%; height:100%; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; }
+
+        /* ==========================================================
+           REVEAL ON SCROLL (visible por defecto; oculto solo con JS)
+           ========================================================== */
+        .reveal { opacity:1; transform:none; }
+        html.js .reveal {
+            opacity:0; transform:translateY(22px);
+            transition:opacity .75s var(--ease) var(--d,0ms), transform .75s var(--ease) var(--d,0ms);
+        }
+        html.js .reveal.is-visible { opacity:1; transform:none; }
+
+        /* ==========================================================
+           RESPONSIVE FINO (360 → 1440)
+           ========================================================== */
+        @media (max-width:479px) {
+            .hero__actions .btn { width:100%; }
+            .brand__mark { height:34px; }
+            .brand__name { font-size:1.16rem; }
+            .footer__links { flex-direction:column; gap:12px; }
+            .footer__dot { display:none; }
+        }
+        /* Anclaje del toast "tablet-aware" (<900px) — 0 solapes medidos:
+           · 600–899px (tablet): bottom:24. En 768×1024 el toast queda en
+             y≈948–1000, lejos del kicker del hero (y≈127–146) y del CTA
+             mostaza de #pago con la sección centrada (y≈829–880).
+           · <600px (móvil): los paneles de #pago se apilan y su CTA se acerca
+             al borde inferior, así que NO se usa bottom; se ancla por arriba,
+             pero por debajo del kicker del hero (que en reposo ocupa
+             y≈121–153 en 320–414px) y por encima del CTA del hero (y≈346+):
+             top:176 deja 0 solapes con kicker y con CTA en 360/390.
+           En ambos casos entra/sale desde abajo (translateY(130%)) para no
+           cruzar nunca el kicker, y sigue siendo pointer-events:none. */
+        @media (max-width:899px) {
+            .toast {
+                top:auto; bottom:24px;
+                transform:translateX(-50%) translateY(130%);
+            }
+            .toast.is-visible { transform:translateX(-50%) translateY(0); }
+        }
+        @media (max-width:599px) {
+            .toast {
+                top:176px; bottom:auto;
+                transform:translateX(-50%) translateY(130%);
+            }
+            .toast.is-visible { transform:translateX(-50%) translateY(0); }
+        }
+        @media (min-width:1440px) {
+            .hero { padding-top:clamp(72px,7vw,110px); }
+        }
+
+        /* ==========================================================
+           PREFERS-REDUCED-MOTION
+           ========================================================== */
+        @media (prefers-reduced-motion:reduce) {
+            html { scroll-behavior:auto; }
+            *, *::before, *::after {
+                animation-duration:.01ms !important;
+                animation-iteration-count:1 !important;
+                transition-duration:.01ms !important;
+            }
+            .marquee__track { animation:none !important; width:100%; justify-content:center; }
+            .marquee__group + .marquee__group { display:none; }
+            .marquee__group { padding-right:0; }
+            html.js .reveal { opacity:1 !important; transform:none !important; }
+            .card:hover, .btn:hover, .btn--primary:hover, .btn--ghost:hover, .btn--dark:hover,
+            .redes__link:hover, .redes__link:hover .redes__arrow { transform:none; }
+            .card:hover .card__media img, .hero__media:hover .hero__photo img,
+            .gal__link:hover .gal__frame img { transform:none; }
+            .gal__link:hover .gal__zoom, .gal__link:focus-visible .gal__zoom { transform:none; }
+        }
+        html.reduced-motion *, html.reduced-motion *::before, html.reduced-motion *::after {
+            animation-duration:.01ms !important;
+            animation-iteration-count:1 !important;
+            transition-duration:.01ms !important;
+        }
+        html.reduced-motion { scroll-behavior:auto; }
+        html.reduced-motion .reveal { opacity:1 !important; transform:none !important; }
+
+        /* Sin movimiento y en pantalla angosta: la banda se centra y ajusta
+           el texto en varias líneas en vez de cortarlo pegado a los bordes */
+        @media (prefers-reduced-motion:reduce) and (max-width:699px) {
+            .marquee__track { flex-wrap:wrap; }
+            .marquee__group {
+                white-space:normal; flex-wrap:wrap; justify-content:center;
+                row-gap:10px; padding:0 18px;
+            }
+        }
+        @media (max-width:699px) {
+            html.reduced-motion .marquee__track { flex-wrap:wrap; }
+            html.reduced-motion .marquee__group {
+                white-space:normal; flex-wrap:wrap; justify-content:center;
+                row-gap:10px; padding:0 18px;
+            }
+        }
+
+        /* Sin JS: el contenido siempre visible */
+    </style>
+    <noscript>
+        <style>
+            .reveal { opacity:1 !important; transform:none !important; }
+            .nav-toggle { display:none !important; }
+        </style>
+    </noscript>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Saltar al contenido principal</a>
+
+<!-- ========== HEADER ========== -->
+<header class="site-header" id="siteHeader">
+    <div class="header-inner">
+        <a class="brand" href="#inicio">
+            <img class="brand__mark" src="assets/marca-shelloh.png" alt="" width="414" height="383">
+            <span class="brand__text">
+                <span class="brand__name">Shelloh</span>
+                <span class="brand__kicker">RESTAURANTE</span>
+            </span>
+        </a>
+
+        <nav class="site-nav" aria-label="Navegación principal">
+            <ul class="site-nav__list">
+                <li><a class="site-nav__link" href="#inicio">Inicio</a></li>
+                <li><a class="site-nav__link" href="#carta">La carta</a></li>
+                <li><a class="site-nav__link" href="#destacados">Destacados</a></li>
+                <li><a class="site-nav__link" href="#galeria">Galería</a></li>
+                <li><a class="site-nav__link" href="#ubicacion">Cómo llegar</a></li>
+                <li><a class="site-nav__link" href="#pago">Pago móvil</a></li>
+            </ul>
+        </nav>
+
+        <button class="nav-toggle" id="navToggle" type="button"
+                aria-expanded="false" aria-controls="mobileNav"
+                aria-label="Abrir menú de navegación">
+            <span class="nav-toggle__bar"></span>
+            <span class="nav-toggle__bar"></span>
+            <span class="nav-toggle__bar"></span>
+        </button>
+
+        <nav class="mobile-nav" id="mobileNav" aria-label="Navegación móvil">
+            <a class="mobile-nav__link" href="#inicio">Inicio</a>
+            <a class="mobile-nav__link" href="#carta">La carta</a>
+            <a class="mobile-nav__link" href="#destacados">Destacados</a>
+            <a class="mobile-nav__link" href="#galeria">Galería</a>
+            <a class="mobile-nav__link" href="#ubicacion">Cómo llegar</a>
+            <a class="mobile-nav__link" href="#pago">Pago móvil</a>
+        </nav>
+    </div>
+</header>
+
+<main id="main-content">
+
+    <!-- ========== HERO (#inicio) ========== -->
+    <section class="hero" id="inicio" aria-labelledby="heroTitle">
+        <svg class="hero-arc" viewBox="0 0 600 600" aria-hidden="true" focusable="false">
+            <path d="M6 594A588 588 0 0 1 594 6"/>
+            <path d="M96 594A498 498 0 0 1 594 96" opacity=".55"/>
+            <path d="M186 594A408 408 0 0 1 594 186" opacity=".3"/>
+        </svg>
+
+        <div class="wrap hero__inner">
+            <div class="hero__content">
+                <p class="hero__kicker"><span class="hero__kicker-text">RESTAURANTE · COCINA VENEZOLANA URBANA</span></p>
+
+                <h1 class="hero__title" id="heroTitle">La mesa venezolana, <em>de ahora</em>.</h1>
+
+                <p class="hero__lead">Sabores que ya conoces — la arepa, la empanada, el almuerzo casero — servidos dentro de una experiencia urbana, cálida y cuidada.</p>
+
+                <div class="hero__actions">
+                    <a class="btn btn--primary" href="menu.html">Abrir la carta</a>
+                    <a class="btn btn--ghost" href="#destacados">Ver destacados</a>
+                </div>
+
+                <ul class="hero__chips">
+                    <li class="chip">Arepas</li>
+                    <li class="chip">Almuerzos</li>
+                    <li class="chip">Jugos naturales</li>
+                </ul>
+            </div>
+
+            <div class="hero__media">
+                <div class="hero__photo">
+                    <img src="assets/foto-arepa-empanada.jpg"
+                         alt="Arepa rellena y una empanada servidas sobre un plato oscuro"
+                         width="949" height="572" fetchpriority="high" decoding="async">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== MARQUESINA ========== -->
+    <div class="marquee" id="marquee">
+        <p class="visually-hidden">Empanadas de pabellón, arepas especiales, almuerzos, sopas, jugos naturales y pasticho.</p>
+        <div class="marquee__track" aria-hidden="true">
+            <span class="marquee__group">
+                <span>EMPANADAS DE PABELLÓN</span><span class="marquee__sep">·</span>
+                <span>AREPAS ESPECIALES</span><span class="marquee__sep">·</span>
+                <span>ALMUERZOS</span><span class="marquee__sep">·</span>
+                <span>SOPAS</span><span class="marquee__sep">·</span>
+                <span>JUGOS NATURALES</span><span class="marquee__sep">·</span>
+                <span>PASTICHO</span><span class="marquee__sep">·</span>
+            </span>
+            <span class="marquee__group">
+                <span>EMPANADAS DE PABELLÓN</span><span class="marquee__sep">·</span>
+                <span>AREPAS ESPECIALES</span><span class="marquee__sep">·</span>
+                <span>ALMUERZOS</span><span class="marquee__sep">·</span>
+                <span>SOPAS</span><span class="marquee__sep">·</span>
+                <span>JUGOS NATURALES</span><span class="marquee__sep">·</span>
+                <span>PASTICHO</span><span class="marquee__sep">·</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- ========== 01 — LA CARTA (#carta) ========== -->
+    <section class="section" id="carta" aria-labelledby="cartaTitle">
+        <div class="wrap">
+            <p class="eyebrow reveal">01 — LA CARTA</p>
+            <h2 class="section-title reveal" id="cartaTitle" style="--d:60ms">Tres momentos, una sola cocina.</h2>
+            <p class="section-lead reveal" style="--d:120ms">Desayunos, almuerzos y bebidas: tres momentos del día, servidos con la misma receta de siempre y hechos al momento.</p>
+
+            <div class="rows">
+                <a class="row reveal" href="menu.html">
+                    <span class="row__num">01</span>
+                    <div class="row__body">
+                        <h3 class="row__title">Desayunos</h3>
+                        <p class="row__desc">Empanadas, pastelitos y arepas con el contorno que elijas.</p>
+                    </div>
+                    <div class="row__meta">
+                        <span class="badge">Empanadas y arepas</span>
+                        <span class="row__arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+                <a class="row reveal" href="menu.html" style="--d:80ms">
+                    <span class="row__num">02</span>
+                    <div class="row__body">
+                        <h3 class="row__title">Almuerzos</h3>
+                        <p class="row__desc">Proteína + contorno, platos Shelloh y sopas.</p>
+                    </div>
+                    <div class="row__meta">
+                        <span class="badge">Proteína y contorno</span>
+                        <span class="row__arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+                        </span>
+                    </div>
+                </a>
+
+                <a class="row reveal" href="menu.html" style="--d:160ms">
+                    <span class="row__num">03</span>
+                    <div class="row__body">
+                        <h3 class="row__title">Bebidas</h3>
+                        <p class="row__desc">Jugos naturales, refrescos, malta y agua.</p>
+                    </div>
+                    <div class="row__meta">
+                        <span class="badge">Jugos, refresco y agua</span>
+                        <span class="row__arrow" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+                        </span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== 02 — DESTACADOS (#destacados) ========== -->
+    <section class="section" id="destacados" aria-labelledby="destacadosTitle">
+        <div class="wrap">
+            <p class="eyebrow eyebrow--dark reveal">02 — DESTACADOS</p>
+            <h2 class="section-title section-title--dark reveal" id="destacadosTitle" style="--d:60ms">Lo que más sale de esta cocina.</h2>
+            <p class="section-lead section-lead--dark reveal" style="--d:120ms">Cuatro propuestas de la casa para abrir el apetito.</p>
+
+            <div class="cards">
+                <a class="card reveal" href="menu.html">
+                    <div class="card__media">
+                        <img src="assets/foto-arepa-llena.jpg"
+                             alt="Arepa especial Shelloh, alta y rellena, sobre un plato oscuro"
+                             width="712" height="538" loading="lazy" decoding="async">
+                    </div>
+                    <div class="card__body">
+                        <h3 class="card__title">Arepa Especial Shelloh</h3>
+                        <p class="card__note">La que le da nombre a la casa.</p>
+                    </div>
+                </a>
+
+                <a class="card reveal" href="menu.html" style="--d:80ms">
+                    <div class="card__media">
+                        <img src="assets/foto-milanesa.jpg"
+                             alt="Milanesa de pollo con arroz blanco y ensalada"
+                             width="512" height="690" loading="lazy" decoding="async">
+                    </div>
+                    <div class="card__body">
+                        <h3 class="card__title">Almuerzos</h3>
+                        <p class="card__note">Seis proteínas y diez contornos a tu elección.</p>
+                    </div>
+                </a>
+
+                <a class="card reveal" href="menu.html" style="--d:160ms">
+                    <div class="card__media">
+                        <img src="assets/foto-plato-oscuro.jpg"
+                             class="card__img--empanadas"
+                             alt="Empanada dorada sobre tabla de madera, junto a una arepa rellena de carne mechada"
+                             width="421" height="942" loading="lazy" decoding="async">
+                    </div>
+                    <div class="card__body">
+                        <h3 class="card__title">Empanadas</h3>
+                        <p class="card__stat">7 rellenos</p>
+                        <p class="card__note">Pabellón Criollo, Margariteño, Cordón Bleu y más.</p>
+                    </div>
+                </a>
+
+                <a class="card reveal" href="menu.html" style="--d:240ms">
+                    <div class="card__media">
+                        <img src="assets/foto-jugos.jpg"
+                             alt="Vasos de jugos naturales de frutas"
+                             width="558" height="985" loading="lazy" decoding="async">
+                    </div>
+                    <div class="card__body">
+                        <h3 class="card__title">Jugos naturales</h3>
+                        <p class="card__note">Parchita, mora, guayaba o fresa.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== 03 — GALERÍA (#galeria) ========== -->
+    <section class="section" id="galeria" aria-labelledby="galeriaTitle">
+        <div class="wrap">
+            <p class="eyebrow reveal">03 — GALERÍA</p>
+            <h2 class="section-title reveal" id="galeriaTitle" style="--d:60ms">La mesa, de cerca.</h2>
+            <p class="section-lead reveal" style="--d:120ms">Un vistazo a los platos que salen de nuestra cocina.</p>
+
+            <!-- Carrusel: flechas + puntos se generan/inyectan abajo; las fotos
+                 se reemplazan cambiando src/alt/dimensiones de cada <img>. -->
+            <div class="gal-carousel" role="group" aria-roledescription="carrusel" aria-label="Galería de fotos de la cocina">
+                <div class="gal-track" id="galTrack" tabindex="0">
+                <figure class="gal__item reveal" data-photo="arepa-empanada" data-caption="Arepa rellena y empanada" style="--d:0ms">
+                    <a class="gal__link" href="assets/foto-arepa-empanada.jpg" data-full="assets/foto-arepa-empanada.jpg">
+                        <span class="gal__frame" style="--ar:5/3; --pos:center">
+                            <img src="assets/foto-arepa-empanada.jpg"
+                                 alt="Arepa rellena y una empanada dorada servidas sobre un plato oscuro"
+                                 width="949" height="572" loading="lazy" decoding="async">
+                            <span class="gal__zoom" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.6 4.6"/><path d="M11 8.6v4.8M8.6 11h4.8"/></svg>
+                            </span>
+                        </span>
+                    </a>
+                </figure>
+
+                <figure class="gal__item reveal" data-photo="pabellon" data-caption="Pabellón criollo" style="--d:80ms">
+                    <a class="gal__link" href="assets/foto-pabellon.jpg" data-full="assets/foto-pabellon.jpg">
+                        <span class="gal__frame" style="--ar:2/1; --pos:center">
+                            <img src="assets/foto-pabellon.jpg"
+                                 alt="Plato de pabellón criollo con carne mechada, arroz, frijoles y tajadas de plátano"
+                                 width="558" height="279" loading="lazy" decoding="async">
+                            <span class="gal__zoom" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.6 4.6"/><path d="M11 8.6v4.8M8.6 11h4.8"/></svg>
+                            </span>
+                        </span>
+                    </a>
+                </figure>
+
+                <figure class="gal__item reveal" data-photo="arepa-llena" data-caption="Arepa especial Shelloh" style="--d:160ms">
+                    <a class="gal__link" href="assets/foto-arepa-llena.jpg" data-full="assets/foto-arepa-llena.jpg">
+                        <span class="gal__frame" style="--ar:4/3; --pos:center 30%">
+                            <img src="assets/foto-arepa-llena.jpg"
+                                 alt="Arepa especial Shelloh cubierta con carne mechada, aguacate, crema y queso rallado"
+                                 width="712" height="538" loading="lazy" decoding="async">
+                            <span class="gal__zoom" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.6 4.6"/><path d="M11 8.6v4.8M8.6 11h4.8"/></svg>
+                            </span>
+                        </span>
+                    </a>
+                </figure>
+
+                <figure class="gal__item reveal" data-photo="milanesa" data-caption="Milanesa con arroz y ensalada" style="--d:0ms">
+                    <a class="gal__link" href="assets/foto-milanesa.jpg" data-full="assets/foto-milanesa.jpg">
+                        <span class="gal__frame" style="--ar:3/4; --pos:center">
+                            <img src="assets/foto-milanesa.jpg"
+                                 alt="Milanesa de pollo empanizada con arroz blanco y ensalada"
+                                 width="512" height="690" loading="lazy" decoding="async">
+                            <span class="gal__zoom" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.6 4.6"/><path d="M11 8.6v4.8M8.6 11h4.8"/></svg>
+                            </span>
+                        </span>
+                    </a>
+                </figure>
+
+                <figure class="gal__item reveal" data-photo="desayuno" data-caption="Desayuno de la casa" style="--d:80ms">
+                    <a class="gal__link" href="assets/foto-desayuno.jpg" data-full="assets/foto-desayuno.jpg">
+                        <span class="gal__frame" style="--ar:5/6; --pos:center">
+                            <img src="assets/foto-desayuno.jpg"
+                                 alt="Desayuno con arepa, empanada, tostones y un vaso de jugo de naranja"
+                                 width="1069" height="1285" loading="lazy" decoding="async">
+                            <span class="gal__zoom" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.6 4.6"/><path d="M11 8.6v4.8M8.6 11h4.8"/></svg>
+                            </span>
+                        </span>
+                    </a>
+                </figure>
+
+                <figure class="gal__item reveal" data-photo="jugos" data-caption="Jugos naturales" style="--d:160ms">
+                    <a class="gal__link" href="assets/foto-jugos.jpg" data-full="assets/foto-jugos.jpg">
+                        <span class="gal__frame" style="--ar:9/16; --pos:center 40%">
+                            <img src="assets/foto-jugos.jpg"
+                                 alt="Tres vasos de jugos naturales de parchita, mora y fresa con frutas frescas"
+                                 width="558" height="985" loading="lazy" decoding="async">
+                            <span class="gal__zoom" aria-hidden="true">
+                                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.6 4.6"/><path d="M11 8.6v4.8M8.6 11h4.8"/></svg>
+                            </span>
+                        </span>
+                    </a>
+                </figure>
+                </div>
+
+                <button class="gal-btn gal-btn--prev" id="galPrev" type="button" aria-label="Foto anterior">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <button class="gal-btn gal-btn--next" id="galNext" type="button" aria-label="Foto siguiente">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+                <div class="gal-dots" id="galDots"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== MANIFIESTO ========== -->
+    <section class="manifiesto">
+        <svg class="manifiesto__arc" viewBox="0 0 800 400" aria-hidden="true" focusable="false">
+            <path d="M4 396A396 396 0 0 1 796 4"/>
+            <path d="M104 396A296 296 0 0 1 796 104" opacity=".6"/>
+        </svg>
+        <blockquote class="quote reveal">
+            <p class="quote__text">Un restaurante venezolano que toma sabores familiares y los presenta dentro de una experiencia urbana,&nbsp;cálida y cuidada.</p>
+        </blockquote>
+    </section>
+
+    <!-- ========== 04 — CÓMO LLEGAR (#ubicacion) ========== -->
+    <section class="section" id="ubicacion" aria-labelledby="ubicacionTitle">
+        <div class="wrap">
+            <p class="eyebrow eyebrow--dark reveal">04 — CÓMO LLEGAR</p>
+            <h2 class="section-title section-title--dark reveal" id="ubicacionTitle" style="--d:60ms">Cómo llegar</h2>
+            <p class="section-lead section-lead--dark loc-address reveal" style="--d:120ms">
+                <span class="loc-address__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M20 10c0 5.5-8 12-8 12s-8-6.5-8-12a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                </span>
+                <span>Calle Monagas, Las Avenidas — Maturín, Monagas</span>
+            </p>
+
+            <div class="loc-grid">
+                <!-- Mapa sin API key; loading="lazy" y título accesible.
+                     Sin texto encima: no tapa los controles del mapa. -->
+                <div class="loc-map reveal" style="--d:60ms">
+                    <iframe src="https://www.google.com/maps?q=9.7453607,-63.1708886&hl=es&z=16&output=embed"
+                            title="Mapa con la ubicación de Restaurante Shelloh en Calle Monagas, Las Avenidas, Maturín"
+                            loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+
+                <div class="loc-actions reveal" style="--d:140ms">
+                    <a class="btn btn--primary" href="https://www.google.com/maps/place/Shelloh+Restaurante/@9.7450206,-63.1705802,152m/data=!3m1!1e3!4m6!3m5!1s0x8c3341508c985e2f:0xc52e1b6d68f815cc!8m2!3d9.7453607!4d-63.1708886!16s%2Fg%2F11tcc_d_sh!5m1!1e1?entry=ttu&g_ep=EgoyMDI2MTAwNi4wIKXMDSoASAFQAw%3D%3D"
+                       target="_blank" rel="noopener">
+                        Ver en Google Maps<span class="visually-hidden"> (se abre en una pestaña nueva)</span>
+                    </a>
+                    <a class="btn btn--ghost" href="https://www.google.com/maps/dir/?api=1&destination=9.7453607,-63.1708886"
+                       target="_blank" rel="noopener">
+                        Cómo llegar<span class="visually-hidden"> (se abre en una pestaña nueva)</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== PAGO MÓVIL (#pago) ========== -->
+    <section class="section" id="pago" aria-labelledby="pagoTitle">
+        <div class="wrap">
+            <div class="pay-grid">
+
+                <div class="panel reveal">
+                    <h2 class="panel__title" id="pagoTitle">Pago móvil</h2>
+                    <p class="panel__lead">Copia los datos y lista tu pago desde la app de tu banco.</p>
+
+                    <dl class="pay-rows">
+                        <div class="pay-row">
+                            <dt>Banco</dt>
+                            <dd>0102</dd>
+                        </div>
+                        <div class="pay-row">
+                            <dt>Cédula</dt>
+                            <dd>V-17723490</dd>
+                        </div>
+                        <div class="pay-row">
+                            <dt>Teléfono</dt>
+                            <dd>0416-2839-062</dd>
+                        </div>
+                    </dl>
+
+                    <button class="btn btn--dark" id="btnCopy" type="button" aria-label="Copiar datos de pago móvil al portapapeles">
+                        <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        <span id="btnCopyLabel">Copiar datos</span>
+                    </button>
+                </div>
+
+                <div class="panel panel--contact reveal" style="--d:90ms">
+                    <h3 class="panel__title">Consultas y pedidos</h3>
+                    <a class="contact-tel" href="tel:04162839062">
+                        <span class="contact-tel__label">Teléfono</span>
+                        <span class="contact-tel__number">0416-2839-062</span>
+                    </a>
+                    <a class="btn btn--primary" href="menu.html">Abrir la carta</a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== REDES (#redes) ========== -->
+    <section class="section redes" id="redes" aria-labelledby="redesTitle">
+        <div class="wrap redes__inner">
+            <!-- TODO: reemplazar por el perfil real de Instagram -->
+            <a class="redes__link reveal" href="https://www.instagram.com/" target="_blank" rel="noopener" data-placeholder="instagram">
+                <span class="redes__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5.2"/>
+                        <circle cx="12" cy="12" r="4.2"/>
+                        <circle cx="17.3" cy="6.7" r="1.15" fill="currentColor" stroke="none"/>
+                    </svg>
+                </span>
+                <span class="redes__body">
+                    <span class="redes__kicker">Redes</span>
+                    <span class="redes__title" id="redesTitle">Síguenos en Instagram</span>
+                    <span class="redes__handle">@tu_usuario</span>
+                </span>
+                <span class="redes__arrow" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+                </span>
+                <span class="visually-hidden"> (se abre en una pestaña nueva)</span>
+            </a>
+        </div>
+    </section>
+
+</main>
+
+<!-- ========== FOOTER ========== -->
+<footer class="site-footer">
+    <div class="wrap">
+        <img class="footer__logo" src="assets/logo-shelloh.png"
+             alt="Logo de Restaurante Shelloh"
+             width="1449" height="855" loading="lazy" decoding="async">
+        <p class="footer__name">Restaurante Shelloh</p>
+        <p class="footer__tag">Cocina venezolana urbana</p>
+
+        <div class="footer__line" aria-hidden="true"></div>
+
+        <nav class="footer__links" aria-label="Enlaces del pie de página">
+            <a class="footer__link" href="menu.html">La carta</a>
+            <span class="footer__dot" aria-hidden="true">·</span>
+            <a class="footer__link" href="tel:04162839062">0416-2839-062</a>
+            <span class="footer__dot" aria-hidden="true">·</span>
+            <!-- TODO: reemplazar por el perfil real de Instagram -->
+            <a class="footer__link" href="https://www.instagram.com/" target="_blank" rel="noopener" data-placeholder="instagram">Instagram</a>
+        </nav>
+
+        <p class="footer__note">Venezuela</p>
+    </div>
+</footer>
+
+<!-- ========== TOAST ========== -->
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
+    <span class="toast__icon">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+    </span>
+    <span id="toastMessage">Datos copiados</span>
+</div>
+
+<!-- ========== LIGHTBOX DE LA GALERÍA ========== -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Fotografía ampliada" hidden>
+    <button class="lightbox__btn lightbox__close" id="lightboxClose" type="button" aria-label="Cerrar fotografía ampliada">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"/><path d="M18 6L6 18"/></svg>
+    </button>
+    <button class="lightbox__btn lightbox__prev" id="lightboxPrev" type="button" aria-label="Fotografía anterior">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button class="lightbox__btn lightbox__next" id="lightboxNext" type="button" aria-label="Fotografía siguiente">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+
+    <figure class="lightbox__figure">
+        <img class="lightbox__img" id="lightboxImg" alt="" decoding="async">
+        <figcaption class="lightbox__meta">
+            <span class="lightbox__caption" id="lightboxCaption"></span>
+            <span class="lightbox__counter" id="lightboxCounter"></span>
+        </figcaption>
+    </figure>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    var docEl = document.documentElement;
+
+    function safe(fn) { try { fn(); } catch (err) { /* nada roto el resto de la página */ } }
+
+    /* ----------------------------------------------------------
+       1. prefers-reduced-motion (clase espejo del media query)
+       ---------------------------------------------------------- */
+    var motionMq = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+
+    function syncMotion() {
+        if (!motionMq) return;
+        docEl.classList.toggle('reduced-motion', motionMq.matches === true);
+    }
+    if (motionMq) {
+        syncMotion();
+        if (typeof motionMq.addEventListener === 'function') motionMq.addEventListener('change', syncMotion);
+        else if (typeof motionMq.addListener === 'function') motionMq.addListener(syncMotion);
+    }
+
+    /* ----------------------------------------------------------
+       2. Reveal on scroll (IntersectionObserver + fallback visible)
+       ---------------------------------------------------------- */
+    safe(function initReveal() {
+        var els = document.querySelectorAll('.reveal');
+        if (!els.length) return;
+        var i;
+        var reduced = !!(motionMq && motionMq.matches);
+        var hasIO = typeof window.IntersectionObserver === 'function';
+
+        if (!hasIO || reduced) {
+            for (i = 0; i < els.length; i++) els[i].classList.add('is-visible');
+            return;
+        }
+
+        docEl.classList.add('js'); // solo aquí empiezan ocultos (sin JS siempre visibles)
+
+        var io = new window.IntersectionObserver(function (entries) {
+            for (var j = 0; j < entries.length; j++) {
+                if (entries[j].isIntersecting) {
+                    entries[j].target.classList.add('is-visible');
+                    io.unobserve(entries[j].target);
+                }
+            }
+        }, { root: null, rootMargin: '0px 0px -6% 0px', threshold: 0.08 });
+
+        for (i = 0; i < els.length; i++) io.observe(els[i]);
+
+        // Red de seguridad: revela lo que ya esté en pantalla si algo fallara
+        window.setTimeout(function () {
+            var vh = window.innerHeight || docEl.clientHeight;
+            for (var k = 0; k < els.length; k++) {
+                if (els[k].classList.contains('is-visible')) continue;
+                var rect = els[k].getBoundingClientRect();
+                if (rect.top < vh && rect.bottom > 0) els[k].classList.add('is-visible');
+            }
+        }, 1200);
+    });
+
+    /* ----------------------------------------------------------
+       3. Menú móvil accesible
+       ---------------------------------------------------------- */
+    safe(function initNav() {
+        var toggle = document.getElementById('navToggle');
+        var panel = document.getElementById('mobileNav');
+        if (!toggle || !panel) return;
+
+        function isOpen() { return toggle.getAttribute('aria-expanded') === 'true'; }
+
+        function setOpen(open) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            toggle.setAttribute('aria-label', open ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
+            panel.classList.toggle('is-open', open === true);
+            document.body.classList.toggle('nav-open', open === true);
+        }
+
+        toggle.addEventListener('click', function () {
+            var open = !isOpen();
+            setOpen(open);
+            if (open) {
+                var first = panel.querySelector('a');
+                if (first) first.focus();
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && isOpen()) { setOpen(false); toggle.focus(); }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!isOpen()) return;
+            var t = e.target;
+            if (!t) return;
+            if (panel.contains(t) || toggle.contains(t)) return;
+            setOpen(false);
+        });
+
+        panel.addEventListener('click', function (e) {
+            var t = e.target;
+            if (t && typeof t.closest === 'function' && t.closest('a')) setOpen(false);
+        });
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth >= 900 && isOpen()) setOpen(false);
+        });
+    });
+
+    /* ----------------------------------------------------------
+       4. Copiar datos de pago móvil + toast
+       ---------------------------------------------------------- */
+    safe(function initCopy() {
+        var btn = document.getElementById('btnCopy');
+        var label = document.getElementById('btnCopyLabel');
+        var toastEl = document.getElementById('toast');
+        var toastMsg = document.getElementById('toastMessage');
+        if (!btn || !label) return;
+
+        var data = 'Pago móvil\nBanco: 0102\nCédula: V-17723490\nTeléfono: 0416-2839-062';
+        var toastTimer = null;
+        var resetTimer = null;
+
+        function showToast(message) {
+            if (!toastEl || !toastMsg) return;
+            window.clearTimeout(toastTimer);
+            toastMsg.textContent = message;
+            void toastEl.offsetHeight;
+            toastEl.classList.add('is-visible');
+            toastTimer = window.setTimeout(function () {
+                toastEl.classList.remove('is-visible');
+            }, 3200);
+        }
+
+        function markCopied() {
+            btn.classList.add('btn--copied');
+            label.textContent = 'Copiado';
+            window.clearTimeout(resetTimer);
+            resetTimer = window.setTimeout(function () {
+                btn.classList.remove('btn--copied');
+                label.textContent = 'Copiar datos';
+            }, 2500);
+        }
+
+        function legacyCopy() {
+            var ta = document.createElement('textarea');
+            ta.value = data;
+            ta.setAttribute('readonly', '');
+            ta.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0;';
+            document.body.appendChild(ta);
+            ta.select();
+            var ok = false;
+            try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+            document.body.removeChild(ta);
+            return ok;
+        }
+
+        function onSuccess() { markCopied(); showToast('Datos copiados'); }
+        function onFail() { showToast('No se pudo copiar. Selecciona y copia manualmente.'); }
+
+        btn.addEventListener('click', function () {
+            if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                navigator.clipboard.writeText(data).then(onSuccess).catch(function () {
+                    if (legacyCopy()) onSuccess(); else onFail();
+                });
+            } else {
+                if (legacyCopy()) onSuccess(); else onFail();
+            }
+        });
+    });
+
+    /* ----------------------------------------------------------
+       5. Header con sombra al hacer scroll
+       ---------------------------------------------------------- */
+    safe(function initHeaderScroll() {
+        var header = document.getElementById('siteHeader');
+        if (!header) return;
+        var ticking = false;
+        function update() {
+            header.classList.toggle('is-scrolled', window.scrollY > 8);
+            ticking = false;
+        }
+        window.addEventListener('scroll', function () {
+            if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
+        }, { passive: true });
+        update();
+    });
+
+    /* ----------------------------------------------------------
+       6. Marquesina: pausar si la pestaña está oculta
+       ---------------------------------------------------------- */
+    safe(function initMarquee() {
+        var marquee = document.getElementById('marquee');
+        if (!marquee) return;
+        document.addEventListener('visibilitychange', function () {
+            marquee.classList.toggle('is-paused', document.hidden === true);
+        });
+    });
+
+    /* ----------------------------------------------------------
+       7. Lightbox de la galería (teclado, foco, sin dependencias)
+       ---------------------------------------------------------- */
+    safe(function initLightbox() {
+        var grid = document.getElementById('galeria');
+        var lb = document.getElementById('lightbox');
+        if (!grid || !lb) return;
+
+        var links = grid.querySelectorAll('.gal__link');
+        if (!links.length) return;
+
+        var img = document.getElementById('lightboxImg');
+        var cap = document.getElementById('lightboxCaption');
+        var counter = document.getElementById('lightboxCounter');
+        var btnClose = document.getElementById('lightboxClose');
+        var btnPrev = document.getElementById('lightboxPrev');
+        var btnNext = document.getElementById('lightboxNext');
+        var lastFocus = null;
+        var index = 0;
+        var isOpen = false;
+        var closeTimer = null;
+
+        function goTo(i) {
+            index = ((i % links.length) + links.length) % links.length;
+            var a = links[index];
+            var fig = a.closest ? a.closest('figure') : null;
+            var thumb = a.querySelector('img');
+            img.src = a.getAttribute('data-full') || a.getAttribute('href');
+            img.alt = thumb ? (thumb.getAttribute('alt') || '') : '';
+            if (cap) cap.textContent = (fig && fig.getAttribute('data-caption')) || img.alt;
+            if (counter) counter.textContent = (index + 1) + ' / ' + links.length;
+        }
+
+        function open(i) {
+            window.clearTimeout(closeTimer);
+            lastFocus = document.activeElement;
+            goTo(i);
+            lb.hidden = false;
+            void lb.offsetWidth; // reflow: la transición de opacidad arranca desde 0
+            lb.classList.add('is-open');
+            docEl.classList.add('lightbox-open');
+            isOpen = true;
+            if (btnClose) btnClose.focus();
+        }
+
+        function close() {
+            if (!isOpen) return;
+            isOpen = false;
+            lb.classList.remove('is-open');
+            docEl.classList.remove('lightbox-open');
+            closeTimer = window.setTimeout(function () {
+                if (!isOpen) lb.hidden = true;
+            }, 320);
+            if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+        }
+
+        var i;
+        for (i = 0; i < links.length; i++) {
+            (function (idx, a) {
+                a.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    open(idx);
+                });
+            })(i, links[i]);
+        }
+
+        if (btnClose) btnClose.addEventListener('click', close);
+        if (btnPrev) btnPrev.addEventListener('click', function () { goTo(index - 1); });
+        if (btnNext) btnNext.addEventListener('click', function () { goTo(index + 1); });
+
+        lb.addEventListener('click', function (e) {
+            if (e.target === lb) close();
+        });
+
+        lb.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowRight') { e.preventDefault(); goTo(index + 1); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(index - 1); }
+            else if (e.key === 'Tab') {
+                var f = lb.querySelectorAll('button');
+                if (!f.length) return;
+                var first = f[0], last = f[f.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        });
+
+        // Escape aunque el foco haya salido del diálogo
+        document.addEventListener('keydown', function (e) {
+            if (isOpen && (e.key === 'Escape' || e.key === 'Esc')) { e.preventDefault(); close(); }
+        });
+    });
+
+    /* ----------------------------------------------------------
+       8. Carrusel de la galería (flechas, puntos, swipe nativo,
+          teclado; sin librerías y sin auto-avance)
+       ---------------------------------------------------------- */
+    safe(function initGalCarousel() {
+        var track = document.getElementById('galTrack');
+        if (!track) return;
+        var slides = track.querySelectorAll('.gal__item');
+        var prevBtn = document.getElementById('galPrev');
+        var nextBtn = document.getElementById('galNext');
+        var dotsBox = document.getElementById('galDots');
+        if (!slides.length) return;
+
+        var reduceMQ = window.matchMedia('(prefers-reduced-motion:reduce)');
+        var dots = [];
+        var index = 0;
+        var ticking = false;
+
+        if (dotsBox) {
+            for (var i = 0; i < slides.length; i++) {
+                (function (idx) {
+                    var d = document.createElement('button');
+                    d.type = 'button';
+                    d.className = 'gal-dot';
+                    d.setAttribute('aria-label', 'Ir a foto ' + (idx + 1) + ' de ' + slides.length);
+                    d.addEventListener('click', function () { goTo(idx); });
+                    dotsBox.appendChild(d);
+                    dots.push(d);
+                })(i);
+            }
+        }
+
+        function centerOffsetFor(i) {
+            var s = slides[i];
+            return s.offsetLeft - (track.clientWidth - s.offsetWidth) / 2;
+        }
+
+        function nearestIndex() {
+            var center = track.scrollLeft + track.clientWidth / 2;
+            var best = 0, bestD = Infinity;
+            for (var i = 0; i < slides.length; i++) {
+                var sc = slides[i].offsetLeft + slides[i].offsetWidth / 2;
+                var d = Math.abs(sc - center);
+                if (d < bestD) { bestD = d; best = i; }
+            }
+            return best;
+        }
+
+        function sync() {
+            index = nearestIndex();
+            for (var i = 0; i < dots.length; i++) {
+                if (i === index) dots[i].setAttribute('aria-current', 'true');
+                else dots[i].removeAttribute('aria-current');
+            }
+            if (prevBtn) prevBtn.disabled = index <= 0;
+            if (nextBtn) nextBtn.disabled = index >= slides.length - 1;
+        }
+
+        function goTo(i) {
+            i = Math.max(0, Math.min(slides.length - 1, i));
+            var behavior = reduceMQ.matches ? 'auto' : 'smooth';
+            try { track.scrollTo({ left: centerOffsetFor(i), behavior: behavior }); }
+            catch (e) { track.scrollLeft = centerOffsetFor(i); }
+            index = i;
+            sync();
+        }
+
+        if (prevBtn) prevBtn.addEventListener('click', function () { goTo(index - 1); });
+        if (nextBtn) nextBtn.addEventListener('click', function () { goTo(index + 1); });
+
+        track.addEventListener('scroll', function () {
+            if (ticking) return;
+            ticking = true;
+            window.requestAnimationFrame(function () { ticking = false; sync(); });
+        }, { passive: true });
+
+        track.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowRight') { e.preventDefault(); goTo(index + 1); }
+            else if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(index - 1); }
+        });
+
+        window.addEventListener('resize', function () {
+            var target = centerOffsetFor(index);
+            try { track.scrollTo({ left: target, behavior: 'auto' }); }
+            catch (e) { track.scrollLeft = target; }
+        });
+
+        sync();
+        window.addEventListener('load', sync);
+    });
+
+})();
+</script>
+</body>
+</html>
